@@ -1,4 +1,5 @@
 gunicorn
+openai
 tweepy
 flask
 google-api-python-client
