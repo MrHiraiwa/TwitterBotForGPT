@@ -33,7 +33,7 @@ def reload_settings():
     global ORDER, nowDate, nowDateStr, jst
     jst = pytz.timezone('Asia/Tokyo')
     nowDate = datetime.now(jst)
-    nowDateStr = nowDate.strftime('%Y/%m/%d')
+    nowDateStr = nowDate.strftime('%Y年%m月%d日')
     ORDER = get_setting('ORDER').format(nowDateStr=nowDateStr)
 
 def get_setting(key):
