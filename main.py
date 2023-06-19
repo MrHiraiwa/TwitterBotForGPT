@@ -115,11 +115,16 @@ def settings():
     required_env_vars=REQUIRED_ENV_VARS
     )
 
+def trim_tweet_text(text, max_length=140):
+    if len(text) > max_length:
+        text = text[:max_length]
+    return text
 
 @app.route('/tweet')
 def create_tweet():
     result = langchain_agent(ORDER)
-    response = client.create_tweet(text = result)
+    trimmed_result = trim_tweet_text(result)
+    response = client.create_tweet(text = trimmed_result)
     return jsonify({"status": "Tweet created", "tweet_id": response.data['id']}), 200
 
 if __name__ == "__main__":
