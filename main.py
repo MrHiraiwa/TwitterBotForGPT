@@ -120,7 +120,7 @@ def settings():
 def create_tweet():
     result = langchain_agent(ORDER)
     response = client.create_tweet(text = result)
-    return jsonify({"status": "Tweet created", "tweet_id": response.id}), 200
+    return jsonify({"status": "Tweet created", "tweet_id": response.data.id}), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
