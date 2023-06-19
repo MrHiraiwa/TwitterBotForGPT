@@ -17,7 +17,7 @@ client = tweepy.Client(
     access_token_secret = ACCESS_TOKEN_SECRET
 )
 
-@app.route('/tweet', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 def create_tweet():
     result = langchain_agent("今日の天気は?")
     response = client.create_tweet(text = result)
