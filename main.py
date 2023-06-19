@@ -1,6 +1,7 @@
 import os
 import tweepy
 from google.cloud import firestore
+from flask_executor import Executor
 from flask import Flask, request, render_template, session, redirect, url_for, jsonify, abort
 from langchainagent import langchain_agent
 
@@ -9,6 +10,7 @@ API_KEY_SECRET = os.getenv('API_KEY_SECRET')
 ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
 ACCESS_TOKEN_SECRET = os.getenv('ACCESS_TOKEN_SECRET')
 admin_password = os.environ["ADMIN_PASSWORD"]
+executor = Executor(app)
 
 REQUIRED_ENV_VARS = [
     "ORDER",
@@ -122,10 +124,13 @@ def trim_tweet_text(text, max_length=140):
 
 @app.route('/tweet')
 def create_tweet():
+    executor.submit(_create_tweet)
+    return jsonify({"status": "Tweet creation started"}), 200
+
+def _create_tweet():
     result = langchain_agent(ORDER)
     trimmed_result = trim_tweet_text(result)
     response = client.create_tweet(text = trimmed_result)
-    return jsonify({"status": "Tweet created", "tweet_id": response.data['id']}), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
