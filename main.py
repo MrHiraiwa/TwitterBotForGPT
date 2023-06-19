@@ -2,6 +2,7 @@ import os
 import tweepy
 from google.cloud import firestore
 from datetime import datetime, time, timedelta
+import pytz
 from flask import Flask, request, render_template, session, redirect, url_for, jsonify, abort
 from langchainagent import langchain_agent
 
@@ -29,7 +30,8 @@ client = tweepy.Client(
 db = firestore.Client()
 
 def reload_settings():
-    global ORDER, nowDate, nowDateStr
+    global ORDER, nowDate, nowDateStr, jst
+    jst = pytz.timezone('Asia/Tokyo')
     nowDate = datetime.now(jst)
     nowDateStr = nowDate.strftime('%Y/%m/%d')
     ORDER = get_setting('ORDER').format(nowDateStr=nowDateStr)
