@@ -125,6 +125,7 @@ def trim_tweet_text(text, max_length=140):
 
 @app.route('/tweet')
 def create_tweet():
+    reload_settings()
     executor.submit(_create_tweet)
     return jsonify({"status": "Tweet creation started"}), 200
 
