@@ -4,4 +4,4 @@ openai
 tweepy
 flask
 google-api-python-client
-langchain==0.0.202
+langchain
