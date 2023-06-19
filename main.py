@@ -15,7 +15,7 @@ REQUIRED_ENV_VARS = [
 ]
 
 DEFAULT_ENV_VARS = {
-    'ORDER': 'テストとツイートしてください。',
+    'ORDER': ' {nowDateStr}のニュースを検索してください。',
 }
 
 client = tweepy.Client(
@@ -28,8 +28,10 @@ client = tweepy.Client(
 db = firestore.Client()
 
 def reload_settings():
-    global ORDER
-    ORDER = get_setting('ORDER')
+    global ORDER, nowDate, nowDateStr
+    nowDate = datetime.now(jst)
+    nowDateStr = nowDate.strftime('%Y/%m/%d')
+    ORDER = get_setting('ORDER').format(nowDateStr=nowDateStr)
 
 def get_setting(key):
     doc_ref = db.collection(u'settings').document('app_settings')
