@@ -13,4 +13,7 @@ client = tweepy.Client(
     access_token = ACCESS_TOKEN,
     access_token_secret = ACCESS_TOKEN_SECRET
 )
-client.create_tweet(text = "API v2のテスト")
+
+result = langchain_agent("今日の天気は?")
+
+client.create_tweet(text = result)
