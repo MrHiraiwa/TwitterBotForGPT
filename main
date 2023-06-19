@@ -1,14 +1,15 @@
+import os
 import tweepy
 
-consumer_key = 'your_api_key'
-consumer_secret = 'your_api_secret'
-access_token = 'your_access_token'
-access_toke_secret = 'your_access_token_secret'
+API_KEY = os.getenv('API_KEY')
+API_KEY_SECRET = os.getenv('API_KEY_SECRET')
+ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
+ACCESS_TOKEN_SECRET = os.getenv('ACCESS_TOKEN_SECRET')
 
 client = tweepy.Client(
-    consumer_key = consumer_key,
-    consumer_secret = consumer_secret,
-    access_token = access_token,
-    access_token_secret = access_token_secret
+    consumer_key = API_KEY,
+    consumer_secret = API_KEY_SECRET,
+    access_token = ACCESS_TOKEN,
+    access_token_secret = ACCESS_TOKEN_SECRET
 )
 client.create_tweet(text = "API v2のテスト")
