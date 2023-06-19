@@ -1,3 +1,4 @@
 tweepy
+flask
 google-api-python-client
 langchain==0.0.203
