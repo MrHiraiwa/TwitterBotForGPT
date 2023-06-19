@@ -19,7 +19,7 @@ client = tweepy.Client(
 
 @app.route('/')
 def create_tweet():
-    result = langchain_agent("今日の天気は?")
+    result = langchain_agent("今日のAI関係で面白そうなニュースをTweetしてください。")
     response = client.create_tweet(text = result)
     return jsonify({"status": "Tweet created", "tweet_id": response.id}), 200
 
