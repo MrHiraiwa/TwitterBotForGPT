@@ -5,3 +5,4 @@ tweepy
 flask
 google-api-python-client
 langchain
+Flask-Executor
