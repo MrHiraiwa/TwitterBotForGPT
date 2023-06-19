@@ -114,7 +114,11 @@ window.onload = function() {
   {% for key in required_env_vars %}
     <div>
       <label for="{{ key }}">{{ key }}</label>
+      {% if key == "ORDER" %}
+        <textarea id="{{ key }}" name="{{ key }}" oninput="adjustHeight(this)">{{ settings[key] or '' }}</textarea>
+      {% else %}
         <input type="text" id="{{ key }}" name="{{ key }}" value="{{ settings[key] or '' }}">
+      {% endif %}
     </div>
   {% endfor %}
   <input type="submit" value="Save">
