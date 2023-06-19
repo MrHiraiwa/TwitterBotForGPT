@@ -1,6 +1,6 @@
 import os
 import tweepy
-from flask import Flask, request, render_template, session, redirect, url_for, jsonify, abort
+from flask import Flask, request, jsonify
 from langchainagent import langchain_agent
 
 API_KEY = os.getenv('API_KEY')
@@ -17,7 +17,7 @@ client = tweepy.Client(
     access_token_secret = ACCESS_TOKEN_SECRET
 )
 
-@app.route('/tweet', methods=['POST'])
+@app.route('/tweet', methods=['GET'])
 def create_tweet():
     result = langchain_agent("今日の天気は?")
     response = client.create_tweet(text = result)
