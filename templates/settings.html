@@ -94,16 +94,6 @@ window.onload = function() {
   if (systemPromptElem) {
     adjustHeight(systemPromptElem);
   }
-
-  // Get the reset logs form and the reset button
-  var resetLogsForm = document.getElementById('resetLogsForm');
-  var resetAllUserLogsButton = document.getElementById('resetAllUserLogsButton');
-
-  resetAllUserLogsButton.addEventListener('click', function(e) {
-    // Show a confirm dialog. If the user clicks "Cancel", prevent the form from being submitted.
-    if (!window.confirm('Are you sure you want to reset all user logs? This action cannot be undone.')) {
-      e.preventDefault();
-    }
   });
 };
 
@@ -124,18 +114,10 @@ window.onload = function() {
   {% for key in required_env_vars %}
     <div>
       <label for="{{ key }}">{{ key }}</label>
-      {% if key == "SYSTEM_PROMPT" or key == "PREVIOUS_DUMMY_USER_MESSAGE1" or key == "PREVIOUS_DUMMY_ASSISTANT_MESSAGE1" or key == "PREVIOUS_DUMMY_USER_MESSAGE2" or key == "PREVIOUS_DUMMY_ASSISTANT_MESSAGE2" %}
-        <textarea id="{{ key }}" name="{{ key }}" oninput="adjustHeight(this)">{{ settings[key] or '' }}</textarea>
-      {% else %}
         <input type="text" id="{{ key }}" name="{{ key }}" value="{{ settings[key] or '' }}">
-      {% endif %}
     </div>
   {% endfor %}
   <input type="submit" value="Save">
   <input id="resetButton" type="button" value="Reset to Default">
-</form>
-  <form action="{{ url_for('reset_logs') }}" method="post" id="resetLogsForm">
-    <input type="submit" value="Reset All User Logs" id="resetAllUserLogsButton">
-  </form>
 </body>
 </html>
