@@ -1,7 +1,6 @@
 import os
 import tweepy
 from google.cloud import firestore
-from flask_executor import Executor
 from flask import Flask, request, render_template, session, redirect, url_for, jsonify, abort
 from langchainagent import langchain_agent
 
@@ -10,7 +9,6 @@ API_KEY_SECRET = os.getenv('API_KEY_SECRET')
 ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
 ACCESS_TOKEN_SECRET = os.getenv('ACCESS_TOKEN_SECRET')
 admin_password = os.environ["ADMIN_PASSWORD"]
-executor = Executor(app)
 
 REQUIRED_ENV_VARS = [
     "ORDER",
@@ -63,6 +61,9 @@ reload_settings()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', default='YOUR-DEFAULT-SECRET-KEY')
+
+from flask_executor import Executor
+executor = Executor(app)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
