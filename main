@@ -1,0 +1,18 @@
+from requests_oauthlib import OAuth1Session
+
+API_KEY = "あなたのAPI Key" 
+API_KEY_SECRET = "あなたのAPI Key Secret"
+ACCESS_TOKEN = "あなたのAccess Token"
+ACCESS_TOKEN_SECRET = "あなたのAccess Token Secret"
+
+twitter = OAuth1Session(API_KEY, API_KEY_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+
+# ツイート用のapiアクセス先
+scope = "https://api.twitter.com/1.1/statuses/update.json"
+
+# ツイート本文
+text = "tweet test!! with Python"
+params = {"status" : text}
+
+# 自動ツイート・ツイート実行
+response = twitter.post(update_url, params=params)
