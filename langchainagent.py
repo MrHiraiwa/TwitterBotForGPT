@@ -10,7 +10,7 @@ google_search = GoogleSearchAPIWrapper()
 tools = [
     Tool(
         name = "Search",
-        func=google_search.run,
+        func=google_search.results,
         description="useful for when you need to answer questions about current events. it is single-input tool Search."
     ),
 ]
