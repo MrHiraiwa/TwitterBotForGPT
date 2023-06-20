@@ -7,14 +7,11 @@ llm = ChatOpenAI(model="gpt-4-0613")
 
 google_search = GoogleSearchAPIWrapper()
 
-def link_results(query):
-    return google_search.results(query,10)
-    
 
 tools = [
     Tool(
         name = "Search",
-        func=link_results,
+        func=google_search.run,
         description="useful for when you need to answer questions about current events. it is single-input tool Search."
     ),
 ]
