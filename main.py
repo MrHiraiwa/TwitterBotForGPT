@@ -136,9 +136,12 @@ def create_tweet():
 
 def _create_tweet():
     result = langchain_agent(ORDER)
-    trimmed_result = trim_tweet_text(result)
-    response = client.create_tweet(text = trimmed_result)
-    print(f"Response: {response}")
+    if len(result) <= 140:
+        response = client.create_tweet(text = result)
+        print(f"Response: {response}")
+    else:
+        _create_tweet()
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
