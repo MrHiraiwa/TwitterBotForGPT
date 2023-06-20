@@ -140,11 +140,12 @@ def _create_tweet(retry_count):
         return
 
     result = langchain_agent(ORDER)
-    if len(result) <= 140:
+    if len(result) <= 140 and len(result) > 5:
         response = client.create_tweet(text = result)
         print(f"Response: {response}")
     else:
-        print("Tweet is too long, retrying...")
+        character_count = len(result) 
+        print(f"character_count is {character_count} retrying...")
         _create_tweet(retry_count + 1)  # 文字数オーバーの場合はリトライカウンタを増やして再度試行
 
 if __name__ == "__main__":
