@@ -132,7 +132,7 @@ def create_tweet():
     reload_settings()
     future = executor.submit(_create_tweet, 0)  # Futureオブジェクトを受け取ります
     try:
-        future.result(timeout=5)  # タスクが完了するまで最大5秒待ちます
+        future.result(timeout=60)  
     except Exception as e:
         print(f"Error: {e}")  # エラーメッセージを表示します
     return jsonify({"status": "Tweet creation started"}), 200
