@@ -143,7 +143,7 @@ def _create_tweet(retry_count):
         return
 
     result = langchain_agent(ORDER)
-    if len(result) <= 140 and len(result) > 5:
+    if len(result) <= 140 and len(result) > 3:
         response = client.create_tweet(text = result)
         print(f"Response: {response}")
     else:
