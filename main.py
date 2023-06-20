@@ -127,11 +127,14 @@ def trim_tweet_text(text, max_length=140):
     if len(text) > max_length:
         text = text[:max_length]
     return text
-
 @app.route('/tweet')
 def create_tweet():
     reload_settings()
-    executor.submit(_create_tweet, 0)  # 最初の呼び出しでカウンタを0にセット
+    future = executor.submit(_create_tweet, 0)  # Futureオブジェクトを受け取ります
+    try:
+        future.result(timeout=5)  # タスクが完了するまで最大5秒待ちます
+    except Exception as e:
+        print(f"Error: {e}")  # エラーメッセージを表示します
     return jsonify({"status": "Tweet creation started"}), 200
 
 def _create_tweet(retry_count):
