@@ -132,7 +132,7 @@ def create_tweet():
     reload_settings()
     future = executor.submit(_create_tweet, 0)  # Futureオブジェクトを受け取ります
     try:
-        future.result(timeout=60)  
+        future.result()  
     except Exception as e:
         print(f"Error: {e}")  # エラーメッセージを表示します
     return jsonify({"status": "Tweet creation started"}), 200
