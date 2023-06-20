@@ -144,8 +144,11 @@ def _create_tweet(retry_count):
 
     result = langchain_agent(ORDER)
     if len(result) <= 140 and len(result) > 3:
-        response = client.create_tweet(text = result)
-        print(f"Response: {response}")
+        try:
+            response = client.create_tweet(text = result)
+            print(f"Response: {response}")
+        except tweepy.TweepError as e:
+            print(f"An error occurred: {e.response.text}")
     else:
         character_count = len(result) 
         print(f"character_count is {character_count} retrying...")
