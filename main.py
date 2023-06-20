@@ -146,7 +146,8 @@ def _create_tweet(retry_count):
     if len(result) <= 140 and len(result) > 3:
         try:
             response = client.create_tweet(text = result)
-            print(f"Response: {response}")
+            rate_limit_reset_time = response.headers.get('x-rate-limit-reset')
+            print(f"Response: {response}  Rate limit rest time: {rate_limit_reset_time}")
         except tweepy.TweepError as e:
             print(f"An Tweep error occurred: {e.response.text}")
     else:
