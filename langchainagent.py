@@ -14,7 +14,7 @@ def link_results(query):
 tools = [
     Tool(
         name = "Search",
-        func=link_results,
+        func= google_search.run,
         description="useful for when you need to answer questions about current events. it is single-input tool Search."
     ),
 ]
