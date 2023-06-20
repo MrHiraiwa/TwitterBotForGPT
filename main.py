@@ -131,17 +131,21 @@ def trim_tweet_text(text, max_length=140):
 @app.route('/tweet')
 def create_tweet():
     reload_settings()
-    executor.submit(_create_tweet)
+    executor.submit(_create_tweet, 0)  # 最初の呼び出しでカウンタを0にセット
     return jsonify({"status": "Tweet creation started"}), 200
 
-def _create_tweet():
+def _create_tweet(retry_count):
+    if retry_count >= 5:  # 最大リトライ回数を超えたらエラーメッセージを表示し終了
+        print("Exceeded maximum retry attempts.")
+        return
+
     result = langchain_agent(ORDER)
     if len(result) <= 140:
         response = client.create_tweet(text = result)
         print(f"Response: {response}")
     else:
-        _create_tweet()
-
+        print("Tweet is too long, retrying...")
+        _create_tweet(retry_count + 1)  # 文字数オーバーの場合はリトライカウンタを増やして再度試行
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
