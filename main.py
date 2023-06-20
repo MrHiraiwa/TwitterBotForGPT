@@ -148,7 +148,7 @@ def _create_tweet(retry_count):
             response = client.create_tweet(text = result)
             print(f"Response: {response}")
         except tweepy.TweepError as e:
-            print(f"An error occurred: {e.response.text}")
+            print(f"An Tweep error occurred: {e.response.text}")
     else:
         character_count = len(result) 
         print(f"character_count is {character_count} retrying...")
