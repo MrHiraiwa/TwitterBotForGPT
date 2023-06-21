@@ -79,12 +79,15 @@ input[type="button"] {
       }
     }
     
-    function adjustHeight(elem) {
-        if (elem.tagName.toLowerCase() === 'textarea') {
-            elem.style.height = 'auto';
-            elem.style.height = (elem.scrollHeight) + 'px';
-        }
-    }
+  function adjustHeight(elem) {
+      if (elem.tagName.toLowerCase() === 'textarea') {
+          elem.style.height = 'auto';
+          elem.style.height = (elem.scrollHeight) + 'px';
+          // Scroll the element into view after adjusting its height
+          elem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+  }
+
 
     window.onload = function() {
       var resetButton = document.getElementById('resetButton');
