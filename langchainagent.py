@@ -13,7 +13,7 @@ def link_results(query):
 
 
 def scraping(query):
-    return BeautifulSoupWebReader().load_data(urls=[query])
+    return BeautifulSoupWebReader().load_data(urls=[query])[:1500]
 
 tools = [
     Tool(
