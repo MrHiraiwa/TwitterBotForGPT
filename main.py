@@ -1,4 +1,5 @@
 import os
+import random
 import tweepy
 from google.cloud import firestore
 from datetime import datetime, time, timedelta
@@ -35,7 +36,7 @@ def reload_settings():
     nowDate = datetime.now(jst)
     nowDateStr = nowDate.strftime('%Y年%m月%d日')
     ORDER = get_setting('ORDER').split(',')
-    order = ORDER[0]
+    order = random.choice(ORDER)  # ORDER配列からランダムに選択
     if '{nowDateStr}' in order:
         order = order.format(nowDateStr=nowDateStr)
 
