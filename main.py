@@ -165,6 +165,7 @@ def _create_tweet(retry_count):
     if len(result) <= 140 and len(result) > 3:
         try:
             response = client.create_tweet(text = result)
+            print(f"response : {response}")
         except tweepy.errors.TweepyException as e:
             print(f"An Tweep error occurred: {e}")
     else:
