@@ -8,3 +8,6 @@ langchain
 Flask-Executor
 pytz
 llama-index
+bs4
+requests
+urllib
