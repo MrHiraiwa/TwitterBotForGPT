@@ -145,7 +145,7 @@ def _create_tweet(retry_count):
         print("Exceeded maximum retry attempts.")
         return
 
-    result = langchain_agent(ORDER)
+    result = langchain_agent(order)
     if len(result) <= 140 and len(result) > 3:
         try:
             response = client.create_tweet(text = result)
