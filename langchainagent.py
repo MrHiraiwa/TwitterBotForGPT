@@ -2,7 +2,6 @@ from langchain.agents import initialize_agent, Tool
 from langchain.agents import AgentType
 from langchain.chat_models import ChatOpenAI
 from langchain.utilities.google_search import GoogleSearchAPIWrapper
-from llama_index import GPTSimpleVectorIndex
 from llama_index.readers import BeautifulSoupWebReader
 
 llm = ChatOpenAI(model="gpt-4-0613")
