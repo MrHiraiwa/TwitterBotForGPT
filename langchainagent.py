@@ -9,11 +9,10 @@ llm = ChatOpenAI(model="gpt-4-0613")
 google_search = GoogleSearchAPIWrapper()
 
 def link_results(query):
-    return google_search.results(query,10)[:1500]
+    return google_search.results(query,10)
 
 def scraping(query):
     results = BeautifulSoupWebReader().load_data(urls=[query])
-    results[0] = results[0][:1500]
     return results
 
 tools = [
