@@ -157,21 +157,25 @@ def create_tweet():
     return jsonify({"status": "Tweet creation started"}), 200
 
 def _create_tweet(retry_count):
-    if retry_count >= 5:  # 最大リトライ回数を超えたらエラーメッセージを表示し終了
+    if retry_count >= 5:
         print("Exceeded maximum retry attempts.")
         return
 
     result = langchain_agent(order)
-    if len(result) <= 140 and len(result) > 3:
+    character_count = count_chars(result)
+    if 1 <= character_count <= 280: 
         try:
             response = client.create_tweet(text = result)
             print(f"response : {response}")
         except tweepy.errors.TweepyException as e:
             print(f"An Tweep error occurred: {e}")
     else:
-        character_count = len(result) 
         print(f"character_count is {character_count} retrying...")
-        _create_tweet(retry_count + 1)  # 文字数オーバーの場合はリトライカウンタを増やして再度試行
+        _create_tweet(retry_count + 1)
+
+def count_chars(s):
+    return sum((1 if ord(c) < 128 else 2) for c in s)
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
