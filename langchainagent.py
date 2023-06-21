@@ -10,11 +10,13 @@ google_search = GoogleSearchAPIWrapper()
 
 def link_results(query):
     return google_search.results(query,10)
-
+    
 def scraping(query):
-    document = BeautifulSoupWebReader().load_data(urls=[query])
-    text = document.text[:1500]
-    return text
+    documents = BeautifulSoupWebReader().load_data(urls=[query])
+    for i, document in enumerate(documents):
+        text = document.text
+        documents[i] = text[:1500]
+    return documents
 
 tools = [
     Tool(
