@@ -18,7 +18,20 @@ REQUIRED_ENV_VARS = [
 ]
 
 DEFAULT_ENV_VARS = {
-    'ORDER': ' {nowDateStr}のニュースを検索してください。',
+    'ORDER': '
+あなたは、Twitter投稿者です。
+「AI {nowDateStr}」のキーワードで検索して、{nowDateStr}のAI・人工知能関連のニュースを一つ選び、下記の条件に従ってツイートしてください。
+条件:
+-文字数はURLも含めて138文字以内にしてください。
+-検索して発表する形で文書を書かずに、最初から知ってた体裁で書いてください。
+-冒頭に「選んだ」「検索した」等の記載は不要です。
+-文書の冒頭は「AIニュースちゃん:」から初めてください。
+-ニュースだけを短く簡潔に書いてください。
+-小学生にもわかりやすく書いてください。
+-出力文 は口語体で記述してください。
+-文脈に応じて、任意の場所で絵文字を使ってください。
+-{nowDateStr}の記事がない場合は近い日付の記事を選択してください。
+',
 }
 
 client = tweepy.Client(
@@ -37,8 +50,10 @@ def reload_settings():
     nowDateStr = nowDate.strftime('%Y年%m月%d日')
     ORDER = get_setting('ORDER').split(',')
     order = random.choice(ORDER)  # ORDER配列からランダムに選択
+    order = order.strip()  # 先頭と末尾の改行コードを取り除く
     if '{nowDateStr}' in order:
         order = order.format(nowDateStr=nowDateStr)
+
 
 def get_setting(key):
     doc_ref = db.collection(u'settings').document('app_settings')
