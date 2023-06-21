@@ -185,7 +185,7 @@ def count_chars(s):
         try:
             char_name = unicodedata.name(c)
             if 'HIRAGANA' in char_name or 'KATAKANA' in char_name:
-                count += 1
+                count += 2
             elif ord(c) < 128:
                 count += 1
             else:
