@@ -6,6 +6,7 @@ from datetime import datetime, time, timedelta
 import pytz
 from flask import Flask, request, render_template, session, redirect, url_for, jsonify, abort
 from langchainagent import langchain_agent
+import unicodedata
 
 API_KEY = os.getenv('API_KEY')
 API_KEY_SECRET = os.getenv('API_KEY_SECRET')
@@ -174,8 +175,15 @@ def _create_tweet(retry_count):
         _create_tweet(retry_count + 1)
 
 def count_chars(s):
-    return sum((1 if ord(c) < 128 else 2) for c in s)
-
+    count = 0
+    for c in s:
+        if 'HIRAGANA' in unicodedata.name(c) or 'KATAKANA' in unicodedata.name(c):
+            count += 1
+        elif ord(c) < 128:
+            count += 1
+        else:
+            count += 2
+    return count
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
