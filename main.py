@@ -174,8 +174,12 @@ def _create_tweet(retry_count):
         print(f"character_count is {character_count} retrying...")
         _create_tweet(retry_count + 1)
 
+import re
+
 def count_chars(s):
     count = 0
+    urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', s)
+    s = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', '', s)
     for c in s:
         try:
             char_name = unicodedata.name(c)
@@ -188,8 +192,9 @@ def count_chars(s):
         except ValueError:
             # For characters that do not have a Unicode name, we assume they are control characters
             count += 1
-    return count
 
+    count += len(urls) * 23 # Each URL is counted as 23 characters
+    return count
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
