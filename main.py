@@ -177,13 +177,19 @@ def _create_tweet(retry_count):
 def count_chars(s):
     count = 0
     for c in s:
-        if 'HIRAGANA' in unicodedata.name(c) or 'KATAKANA' in unicodedata.name(c):
+        try:
+            char_name = unicodedata.name(c)
+            if 'HIRAGANA' in char_name or 'KATAKANA' in char_name:
+                count += 1
+            elif ord(c) < 128:
+                count += 1
+            else:
+                count += 2
+        except ValueError:
+            # For characters that do not have a Unicode name, we assume they are control characters
             count += 1
-        elif ord(c) < 128:
-            count += 1
-        else:
-            count += 2
     return count
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
