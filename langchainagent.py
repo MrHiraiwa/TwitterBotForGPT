@@ -10,7 +10,7 @@ llm = ChatOpenAI(model="gpt-4-0613")
 google_search = GoogleSearchAPIWrapper()
 
 def link_results(query):
-    return google_search.results(query,10)
+    return google_search.results(query,3)
 
 
 def scraping(query):
