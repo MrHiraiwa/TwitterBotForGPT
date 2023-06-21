@@ -13,7 +13,7 @@ def link_results(query):
 
 def scraping(query):
     results = BeautifulSoupWebReader().load_data(urls=[query])
-    results[0] = results[0][:1500].replace('\n', '')
+    results[0] = results[0][:1500]
     return results
 
 tools = [
