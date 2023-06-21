@@ -30,13 +30,14 @@ client = tweepy.Client(
 db = firestore.Client()
 
 def reload_settings():
-    global ORDER, nowDate, nowDateStr, jst
+    global order, nowDate, nowDateStr, jst
     jst = pytz.timezone('Asia/Tokyo')
     nowDate = datetime.now(jst)
     nowDateStr = nowDate.strftime('%Y年%m月%d日')
-    ORDER = get_setting('ORDER')
-    if '{nowDateStr}' in ORDER:
-        ORDER = ORDER.format(nowDateStr=nowDateStr)
+    ORDER = get_setting('ORDER').split(',')
+    order = ORDER[0]
+    if '{nowDateStr}' in order:
+        order = order.format(nowDateStr=nowDateStr)
 
 def get_setting(key):
     doc_ref = db.collection(u'settings').document('app_settings')
