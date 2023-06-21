@@ -2,6 +2,8 @@ from langchain.agents import initialize_agent, Tool
 from langchain.agents import AgentType
 from langchain.chat_models import ChatOpenAI
 from langchain.utilities.google_search import GoogleSearchAPIWrapper
+from llama_index import GPTSimpleVectorIndex
+from llama_index.readers import BeautifulSoupWebReader
 
 llm = ChatOpenAI(model="gpt-4-0613")
 
@@ -11,11 +13,19 @@ def link_results(query):
     return google_search.results(query,10)
 
 
+def scraping(query):
+    return BeautifulSoupWebReader().load_data(urls=[query])
+
 tools = [
     Tool(
         name = "Search",
         func= google_search.run,
         description="useful for when you need to answer questions about current events. it is single-input tool Search."
+    ),
+    Tool(
+        name = "Scraping",
+        func= scraping.run,
+        description="It is a tool that can get content from url."
     ),
 ]
 
