@@ -74,30 +74,32 @@ input[type="button"] {
         const inputElem = document.getElementById(key);
         if (inputElem) {
           inputElem.value = defaultSettings[key];
+          adjustHeight(inputElem);
         }
       }
     }
-  function adjustHeight(elem) {
-    elem.style.height = "1px";
-    elem.style.height = (elem.scrollHeight)+"px";
-    elem.style.overflow = 'hidden';
-}
+    
+    function adjustHeight(elem) {
+        if (elem.tagName.toLowerCase() === 'textarea') {
+            elem.style.height = 'auto';
+            elem.style.height = (elem.scrollHeight) + 'px';
+        }
+    }
 
-window.onload = function() {
-  var resetButton = document.getElementById('resetButton');
-  resetButton.addEventListener('click', function(e) {
-    e.preventDefault(); // Prevent the form from being submitted
-    resetToDefaults();
-  });
+    window.onload = function() {
+      var resetButton = document.getElementById('resetButton');
+      resetButton.addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent the form from being submitted
+        resetToDefaults();
+      });
 
-  var systemPromptElem = document.getElementById("ORDER");
-  if (systemPromptElem) {
-    adjustHeight(systemPromptElem);
-  }
-  });
-};
+      var systemPromptElem = document.getElementById("ORDER");
+      if (systemPromptElem) {
+        adjustHeight(systemPromptElem);
+      }
+    };
+</script>
 
-  </script>
 </head>
 <body>
   {% with messages = get_flashed_messages() %}
