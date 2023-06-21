@@ -12,10 +12,9 @@ def link_results(query):
     return google_search.results(query,10)[:1500]
 
 def scraping(query):
-    result = BeautifulSoupWebReader().load_data(urls=[query])[:1500]
-    result = result.replace('\n', '')
-    return result
-
+    results = BeautifulSoupWebReader().load_data(urls=[query])[:1500]
+    results[0] = results[0].replace('\n', '')
+    return results
 
 tools = [
     Tool(
