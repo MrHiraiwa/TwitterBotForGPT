@@ -18,7 +18,7 @@ REQUIRED_ENV_VARS = [
 ]
 
 DEFAULT_ENV_VARS = {
-    'ORDER': '
+    'ORDER': """
 あなたは、Twitter投稿者です。
 「AI {nowDateStr}」のキーワードで検索して、{nowDateStr}のAI・人工知能関連のニュースを一つ選び、下記の条件に従ってツイートしてください。
 条件:
@@ -31,7 +31,7 @@ DEFAULT_ENV_VARS = {
 -出力文 は口語体で記述してください。
 -文脈に応じて、任意の場所で絵文字を使ってください。
 -{nowDateStr}の記事がない場合は近い日付の記事を選択してください。
-',
+""",
 }
 
 client = tweepy.Client(
