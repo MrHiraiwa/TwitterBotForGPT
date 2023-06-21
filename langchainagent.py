@@ -18,12 +18,12 @@ def scraping(query):
 tools = [
     Tool(
         name = "Search",
-        func= link_results.run,
+        func= link_results,
         description="useful for when you need to answer questions about current events. it is single-input tool Search."
     ),
     Tool(
         name = "Scraping",
-        func= scraping.run,
+        func= scraping,
         description="It is a tool that can get content from url."
     ),
 ]
