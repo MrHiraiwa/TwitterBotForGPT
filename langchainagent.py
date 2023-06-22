@@ -3,6 +3,7 @@ from langchain.agents import AgentType
 from langchain.chat_models import ChatOpenAI
 from langchain.utilities.google_search import GoogleSearchAPIWrapper
 from llama_index.readers import BeautifulSoupWebReader
+from bs4 import BeautifulSoup
 import re
 
 llm = ChatOpenAI(model="gpt-4-0613")
@@ -12,13 +13,19 @@ google_search = GoogleSearchAPIWrapper()
 def link_results(query):
     return google_search.results(query,10)
 
-def scraping(query):
+def scraping1(query):
     documents = BeautifulSoupWebReader().load_data(urls=[query])
     for i, document in enumerate(documents):
         text = re.sub(r'\n+', '\n', document.text)
         documents[i] = text[:1500]
     return documents
 
+def scraping2(query):
+    documents = BeautifulSoup(query)
+    for i, document in enumerate(documents):
+        text = re.sub(r'\n+', '\n', document.text)
+        documents[i] = text[:1500]
+    return documents
 
 tools = [
     Tool(
@@ -28,7 +35,7 @@ tools = [
     ),
     Tool(
         name = "Scraping",
-        func= scraping,
+        func= scraping2,
         description="It is a useful tool that can acquire content by giving a URL."
     ),
 ]
