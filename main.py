@@ -160,6 +160,7 @@ def _create_tweet(retry_count):
         return
 
     result = langchain_agent(order)
+    result = result.strip('"') 
     character_count = count_chars(result)
     if 1 <= character_count <= 280: 
         try:
