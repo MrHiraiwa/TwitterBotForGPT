@@ -71,8 +71,8 @@ tools = [
     ),
 ]
 
-def langchain_agent(question):
-    llm = ChatOpenAI(model="gpt-4-0613")
+def langchain_agent(question,AI_MODEL):
+    llm = ChatOpenAI(model=AI_MODEL)
     mrkl = initialize_agent(tools, llm, agent=AgentType.OPENAI_FUNCTIONS, verbose=True)
     try:
         result = mrkl.run(question)
