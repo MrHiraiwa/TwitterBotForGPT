@@ -53,7 +53,7 @@ client = tweepy.Client(
 db = firestore.Client()
 
 def reload_settings():
-    global order, nowDate, nowDateStr, jst, AI_MODEL
+    global order, nowDate, nowDateStr, jst, AI_MODEL, REGENERATE_COUNT
     jst = pytz.timezone('Asia/Tokyo')
     nowDate = datetime.now(jst)
     nowDateStr = nowDate.strftime('%Y年%m月%d日')
