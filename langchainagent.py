@@ -6,6 +6,7 @@ from llama_index.readers import BeautifulSoupWebReader
 from bs4 import BeautifulSoup
 import re
 import requests
+from urllib.parse import urljoin
 
 llm = ChatOpenAI(model="gpt-4-0613")
 
@@ -31,9 +32,10 @@ def scrape_links_and_text(url):
 
     result = ""
     for link in links:
-        url = link.get('href', '')
+        # Use urljoin to ensure the link URL is absolute
+        link_url = urljoin(url, link.get('href', ''))
         text = link.text.strip()  # strip removes leading/trailing whitespace
-        result += f"{url} : {text}\n"  # Append the url and text to the result string
+        result += f"{link_url} : {text}\n"  # Append the url and text to the result string
 
     return result[:1500]  # Truncate the result string to 1500 characters
 
