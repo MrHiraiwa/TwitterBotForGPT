@@ -29,7 +29,7 @@ tools = [
     Tool(
         name = "Scraping",
         func= scraping,
-        description="It is a tool that can get content from url."
+        description="It is a tool that can acquire content by giving a URL."
     ),
 ]
 
