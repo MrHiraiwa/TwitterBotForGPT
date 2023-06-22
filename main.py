@@ -18,10 +18,12 @@ admin_password = os.environ["ADMIN_PASSWORD"]
 REQUIRED_ENV_VARS = [
     "ORDER",
     "AI_MODEL",
+    "REGENERATE_COUNT",
 ]
 
 DEFAULT_ENV_VARS = {
     'AI_MODEL': 'gpt-4-0613',
+    'REGENERATE_COUNT': '5',
     'ORDER': """
 あなたは、Twitter投稿者です。
 検索は行わずに次のURLからURLのリストを読み込んで{nowDateStr}のAI関連のニュースを一つ選び、下記の条件に従ってツイートしてください。
@@ -55,6 +57,7 @@ def reload_settings():
     jst = pytz.timezone('Asia/Tokyo')
     nowDate = datetime.now(jst)
     nowDateStr = nowDate.strftime('%Y年%m月%d日')
+    REGENERATE_COUNT = int(get_setting('REGENERATE_COUNT') or 5)
     AI_MODEL = get_setting('AI_MODEL')
     ORDER = get_setting('ORDER').split(',')
     order = random.choice(ORDER)  # ORDER配列からランダムに選択
@@ -161,7 +164,7 @@ def create_tweet():
     return jsonify({"status": "Tweet creation started"}), 200
 
 def _create_tweet(retry_count):
-    if retry_count >= 5:
+    if retry_count >= REGENERATE_COUNT:
         print("Exceeded maximum retry attempts.")
         return
 
