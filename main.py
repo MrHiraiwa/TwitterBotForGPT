@@ -144,10 +144,6 @@ def settings():
     required_env_vars=REQUIRED_ENV_VARS
     )
 
-def trim_tweet_text(text, max_length=140):
-    if len(text) > max_length:
-        text = text[:max_length]
-    return text
 @app.route('/tweet')
 def create_tweet():
     reload_settings()
