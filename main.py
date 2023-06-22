@@ -17,9 +17,11 @@ admin_password = os.environ["ADMIN_PASSWORD"]
 
 REQUIRED_ENV_VARS = [
     "ORDER",
+    "AI_MODEL",
 ]
 
 DEFAULT_ENV_VARS = {
+    'AI_MODEL': 'gpt-4-0613',
     'ORDER': """
 あなたは、Twitter投稿者です。
 「AI {nowDateStr}」のキーワードで検索して、{nowDateStr}のAI・人工知能関連のニュースを一つ選び、下記の条件に従ってツイートしてください。
@@ -159,7 +161,7 @@ def _create_tweet(retry_count):
         print("Exceeded maximum retry attempts.")
         return
 
-    result = langchain_agent(order)
+    result = langchain_agent(order,AI_MODEL)
     result = result.strip('"') 
     character_count = count_chars(result)
     if 1 <= character_count <= 280: 
