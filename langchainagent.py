@@ -21,7 +21,7 @@ def scraping1(query):
     return documents
 
 def scraping2(query):
-    documents = BeautifulSoup(query)
+    documents = BeautifulSoup(query, "html.parser")
     for i, document in enumerate(documents):
         text = re.sub(r'\n+', '\n', document.text)
         documents[i] = text[:1500]
