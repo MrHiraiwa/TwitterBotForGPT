@@ -16,7 +16,7 @@ def scraping(query):
     documents = BeautifulSoupWebReader().load_data(urls=[query])
     for i, document in enumerate(documents):
         text = re.sub(r'\n+', '\n', document.text)
-        documents[i] = text[:1000]
+        documents[i] = text[:1500]
     return documents
 
 
