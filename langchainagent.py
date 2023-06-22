@@ -33,6 +33,7 @@ def tag_visible(element):
 def scrape_links_and_text(url):
     response = requests.get(url)
     response.raise_for_status()
+    response.encoding = response.apparent_encoding
 
     soup = BeautifulSoup(response.text, "html.parser")
 
