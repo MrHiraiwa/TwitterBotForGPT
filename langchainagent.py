@@ -14,28 +14,28 @@ google_search = GoogleSearchAPIWrapper()
 def link_results(query):
     return google_search.results(query,10)
 
-def scraping1(query):
+def scraping(query):
     documents = BeautifulSoupWebReader().load_data(urls=[query])
     for i, document in enumerate(documents):
         text = re.sub(r'\n+', '\n', document.text)
         documents[i] = text[:1500]
     return documents
 
-def scraping2(query):
-    response = requests.get(query)
-    response.raise_for_status() 
-    html = response.text
+def scrape_links_and_text(url):
+    response = requests.get(url)
+    response.raise_for_status()
+    
+    soup = BeautifulSoup(response.text, "html.parser")
 
-    documents = BeautifulSoup(html, "html.parser")
-    data_list = documents.find_all(href=re.compile())
+    links = soup.find_all('a')  # find all a tags
 
-    text = ""
-    for data in data_list:
-        if data.span is not None:
-            span_string = data.span.string if data.span.string is not None else ""
-            text += f"{span_string}\n{data.get('href', '')}\n"
+    result = ""
+    for link in links:
+        url = link.get('href', '')
+        text = link.text.strip()  # strip removes leading/trailing whitespace
+        result += f"{url} : {text}\n"  # Append the url and text to the result string
 
-    return text[:1500]
+    return result[:1500]  # Truncate the result string to 1500 characters
 
 tools = [
     Tool(
@@ -44,8 +44,13 @@ tools = [
         description="useful for when you need to answer questions about current events. it is single-input tool Search."
     ),
     Tool(
+        name = "Links",
+        func= scrape_links_and_text,
+        description="It is a convenient tool that allows you to obtain a list of URLs and texts by specifying a URL."
+    ),
+    Tool(
         name = "Scraping",
-        func= scraping2,
+        func= scraping,
         description="It is a useful tool that can acquire content by giving a URL."
     ),
 ]
