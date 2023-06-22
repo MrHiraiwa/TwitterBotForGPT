@@ -26,7 +26,7 @@ def scrape_links_and_text(url):
     response = requests.get(url)
     response.raise_for_status()
     
-    soup = BeautifulSoup(response.content, "html.parser")
+    soup = BeautifulSoup(response.text, "html.parser")
 
     links = soup.find_all('a')  # find all a tags
 
