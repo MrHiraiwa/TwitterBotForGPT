@@ -26,6 +26,11 @@ tools = [
         func= link_results,
         description="useful for when you need to answer questions about current events. it is single-input tool Search."
     ),
+    Tool(
+        name = "Scraping",
+        func= scraping,
+        description="It is a tool that can get content from url."
+    ),
 ]
 
 mrkl = initialize_agent(tools, llm, agent=AgentType.OPENAI_FUNCTIONS, verbose=True)
