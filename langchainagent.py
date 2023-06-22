@@ -5,7 +5,7 @@ from langchain.utilities.google_search import GoogleSearchAPIWrapper
 from llama_index.readers import BeautifulSoupWebReader
 import re
 
-llm = ChatOpenAI(model="gpt-3.5-turbo-0613")
+llm = ChatOpenAI(model="gpt-4-0613")
 
 google_search = GoogleSearchAPIWrapper()
 
