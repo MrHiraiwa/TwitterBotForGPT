@@ -4,6 +4,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.utilities.google_search import GoogleSearchAPIWrapper
 from llama_index.readers import BeautifulSoupWebReader
 import re
+from web import get_search_results
 
 llm = ChatOpenAI(model="gpt-4-0613")
 
@@ -19,11 +20,14 @@ def scraping(query):
         documents[i] = text[:1000]
     return documents
 
+def web_search(query):
+    return get_search_results(query,10)
+
 
 tools = [
     Tool(
         name = "Search",
-        func= link_results,
+        func= web_search,
         description="useful for when you need to answer questions about current events. it is single-input tool Search."
     ),
 ]
