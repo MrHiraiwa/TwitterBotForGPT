@@ -175,8 +175,6 @@ def _create_tweet(retry_count):
         print(f"character_count is {character_count} retrying...")
         _create_tweet(retry_count + 1)
 
-import re
-
 def count_chars(s):
     count = 0
     urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', s)
