@@ -48,10 +48,11 @@ client = tweepy.Client(
 db = firestore.Client()
 
 def reload_settings():
-    global order, nowDate, nowDateStr, jst
+    global order, nowDate, nowDateStr, jst, AI_MODEL
     jst = pytz.timezone('Asia/Tokyo')
     nowDate = datetime.now(jst)
     nowDateStr = nowDate.strftime('%Y年%m月%d日')
+    AI_MODEL = get_setting('AI_MODEL')
     ORDER = get_setting('ORDER').split(',')
     order = random.choice(ORDER)  # ORDER配列からランダムに選択
     order = order.strip()  # 先頭と末尾の改行コードを取り除く
