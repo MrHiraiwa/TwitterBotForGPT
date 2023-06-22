@@ -17,22 +17,27 @@ admin_password = os.environ["ADMIN_PASSWORD"]
 
 REQUIRED_ENV_VARS = [
     "ORDER",
+    "AI_MODEL",
 ]
 
 DEFAULT_ENV_VARS = {
+    'AI_MODEL': 'gpt-4-0613',
     'ORDER': """
 あなたは、Twitter投稿者です。
-「AI {nowDateStr}」のキーワードで検索して、{nowDateStr}のAI・人工知能関連のニュースを一つ選び、下記の条件に従ってツイートしてください。
+検索は行わずに次のURLからURLのリストを読み込んで{nowDateStr}のAI関連のニュースを一つ選び、下記の条件に従ってツイートしてください。
+URL:
+https://news.yahoo.co.jp/search?p=ai&ei=utf-8
 条件:
--文字数はURLも含めて138文字以内にしてください。
+-{nowDateStr}の記事がない場合は近い日付の記事を選択してください。
+-ツイートする文字数はURLを除いて117文字以内にしてください。
 -検索して発表する形で文書を書かずに、最初から知ってた体裁で書いてください。
 -冒頭に「選んだ」「検索した」等の記載は不要です。
 -文書の冒頭は「AIニュースちゃん:」から初めてください。
 -ニュースだけを短く簡潔に書いてください。
+-記事の参照元URLを提示してください。
 -小学生にもわかりやすく書いてください。
 -出力文 は口語体で記述してください。
 -文脈に応じて、任意の場所で絵文字を使ってください。
--{nowDateStr}の記事がない場合は近い日付の記事を選択してください。
 """,
 }
 
@@ -46,10 +51,11 @@ client = tweepy.Client(
 db = firestore.Client()
 
 def reload_settings():
-    global order, nowDate, nowDateStr, jst
+    global order, nowDate, nowDateStr, jst, AI_MODEL
     jst = pytz.timezone('Asia/Tokyo')
     nowDate = datetime.now(jst)
     nowDateStr = nowDate.strftime('%Y年%m月%d日')
+    AI_MODEL = get_setting('AI_MODEL')
     ORDER = get_setting('ORDER').split(',')
     order = random.choice(ORDER)  # ORDER配列からランダムに選択
     order = order.strip()  # 先頭と末尾の改行コードを取り除く
@@ -144,10 +150,6 @@ def settings():
     required_env_vars=REQUIRED_ENV_VARS
     )
 
-def trim_tweet_text(text, max_length=140):
-    if len(text) > max_length:
-        text = text[:max_length]
-    return text
 @app.route('/tweet')
 def create_tweet():
     reload_settings()
@@ -163,7 +165,8 @@ def _create_tweet(retry_count):
         print("Exceeded maximum retry attempts.")
         return
 
-    result = langchain_agent(order)
+    result = langchain_agent(order,AI_MODEL)
+    result = result.strip('"') 
     character_count = count_chars(result)
     if 1 <= character_count <= 280: 
         try:
@@ -174,8 +177,6 @@ def _create_tweet(retry_count):
     else:
         print(f"character_count is {character_count} retrying...")
         _create_tweet(retry_count + 1)
-
-import re
 
 def count_chars(s):
     count = 0
