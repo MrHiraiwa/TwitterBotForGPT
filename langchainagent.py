@@ -9,8 +9,6 @@ import re
 import requests
 from urllib.parse import urljoin
 
-llm = ChatOpenAI(model="gpt-4-0613")
-
 google_search = GoogleSearchAPIWrapper()
 
 def link_results(query):
@@ -73,9 +71,9 @@ tools = [
     ),
 ]
 
-mrkl = initialize_agent(tools, llm, agent=AgentType.OPENAI_FUNCTIONS, verbose=True)
-
 def langchain_agent(question):
+    llm = ChatOpenAI(model="gpt-4-0613")
+    mrkl = initialize_agent(tools, llm, agent=AgentType.OPENAI_FUNCTIONS, verbose=True)
     try:
         result = mrkl.run(question)
         return result
