@@ -5,6 +5,7 @@ from langchain.utilities.google_search import GoogleSearchAPIWrapper
 from llama_index.readers import BeautifulSoupWebReader
 from bs4 import BeautifulSoup
 import re
+import requests
 
 llm = ChatOpenAI(model="gpt-4-0613")
 
@@ -20,18 +21,21 @@ def scraping1(query):
         documents[i] = text[:1500]
     return documents
 
-import requests
-
 def scraping2(query):
     response = requests.get(query)
     response.raise_for_status() 
     html = response.text
 
     documents = BeautifulSoup(html, "html.parser")
-    text = re.sub(r'\n+', '\n', documents.text)
+    data_list = documents.find_all(href=re.compile())
+
+    text = ""
+    for data in data_list:
+        if data.span is not None:
+            span_string = data.span.string if data.span.string is not None else ""
+            text += f"{span_string}\n{data.get('href', '')}\n"
 
     return text[:1500]
-
 
 tools = [
     Tool(
