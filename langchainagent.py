@@ -22,22 +22,38 @@ def scraping(query):
         documents[i] = text[:1500]
     return documents
 
+from bs4.element import Comment
+
+def tag_visible(element):
+    if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
+        return False
+    if isinstance(element, Comment):
+        return False
+    return True
+
 def scrape_links_and_text(url):
     response = requests.get(url)
     response.raise_for_status()
-    
+
     soup = BeautifulSoup(response.text, "html.parser")
 
-    links = soup.find_all('a')  # find all a tags
+    for element in soup(['script', 'style', 'meta']):  # Remove these tags
+        element.decompose()
+
+    links = soup.find_all('a')
 
     result = ""
     for link in links:
-        # Use urljoin to ensure the link URL is absolute
         link_url = urljoin(url, link.get('href', ''))
-        text = link.text.strip()  # strip removes leading/trailing whitespace
-        result += f"{link_url} : {text}\n"  # Append the url and text to the result string
+        text = link.text.strip()
+        result += f"{link_url} : {text}\n"
+
+    texts = soup.findAll(text=True)
+    visible_texts = filter(tag_visible, texts)
+    result += " ".join(t.strip() for t in visible_texts)
 
     return result[:1500]  # Truncate the result string to 1500 characters
+
 
 tools = [
     Tool(
