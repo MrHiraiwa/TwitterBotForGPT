@@ -4,6 +4,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.utilities.google_search import GoogleSearchAPIWrapper
 from llama_index.readers import BeautifulSoupWebReader
 from bs4 import BeautifulSoup
+from bs4.element import Comment
 import re
 import requests
 from urllib.parse import urljoin
@@ -21,8 +22,6 @@ def scraping(query):
         text = re.sub(r'\n+', '\n', document.text)
         documents[i] = text[:1500]
     return documents
-
-from bs4.element import Comment
 
 def tag_visible(element):
     if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
