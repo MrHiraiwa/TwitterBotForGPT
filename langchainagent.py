@@ -52,7 +52,15 @@ def scrape_links_and_text(url):
 
     return result[:1500]  # Truncate the result string to 1500 characters
 
-
+def generate_image(prompt):
+    response = openai.Image.create(
+        model="image-alpha-001",
+        prompt=prompt,
+        n=1,
+        size="256x256",
+        response_format="url"
+    )
+    
 tools = [
     Tool(
         name = "Search",
@@ -68,6 +76,11 @@ tools = [
         name = "Scraping",
         func= scraping,
         description="it is a useful tool that can acquire content that does not contain a URL by giving a URL."
+    ),
+    Tool(
+        name = "Painting",
+        func= generate_image,
+        description="It is a useful tool that can reply image URL based on the keyword by specifying the English keywords."
     ),
 ]
 
