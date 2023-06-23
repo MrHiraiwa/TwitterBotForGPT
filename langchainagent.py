@@ -8,6 +8,7 @@ from bs4.element import Comment
 import re
 import requests
 from urllib.parse import urljoin
+import openai
 
 google_search = GoogleSearchAPIWrapper()
 
