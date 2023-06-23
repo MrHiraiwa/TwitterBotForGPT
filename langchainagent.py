@@ -67,7 +67,7 @@ tools = [
     Tool(
         name = "Scraping",
         func= scraping,
-        description="It is a useful tool that can acquire content by giving a URL."
+        description="it is a useful tool that can acquire content that does not contain a URL by giving a URL."
     ),
 ]
 
