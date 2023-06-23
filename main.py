@@ -23,7 +23,7 @@ REQUIRED_ENV_VARS = [
 ]
 
 DEFAULT_ENV_VARS = {
-    'AI_MODEL': 'gpt-4-0613',
+    'AI_MODEL': 'gpt-3.5-turbo-0613',
     'ORDER': """
 あなたは、Twitter投稿者です。
 検索は行わずに次のURLからURLのリストを読み込んで{nowDateStr}のAI関連のニュースを一つ選び、下記の条件に従ってツイートしてください。
