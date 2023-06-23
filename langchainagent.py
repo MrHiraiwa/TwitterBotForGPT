@@ -62,7 +62,7 @@ tools = [
     Tool(
         name = "Links",
         func= scrape_links_and_text,
-        description="It is a useful tool that allows you to obtain a list of URLs and texts by specifying a URL."
+        description="It is a useful tool that can you to obtain a list of URLs and texts by specifying a URL."
     ),
     Tool(
         name = "Scraping",
