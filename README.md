@@ -27,14 +27,14 @@ URL
 7. TwitterのAPIを有効にし4つのKEY情報を環境変数に登録します。
 
 ## 環境変数
--API_KEY: TwitterのAPIキーを入力してください。
--API_KEY_SECRET: TwitterのAPIキーシークレットを入力してください。
--ACCESS_TOKEN: Twitterのアクセストークンを入力してください。
--ACCESS_TOKEN_SECRET: Twitterのアクセストークンシークレットを入力してください。
--OPENAI_APIKEY: OpenAIのAPIキーを入力してください。
--GOOGLE_API_KEY: Google Cloud Pratformに発行したAPIキーを入力してください。
+- API_KEY: TwitterのAPIキーを入力してください。
+- API_KEY_SECRET: TwitterのAPIキーシークレットを入力してください。
+- ACCESS_TOKEN: Twitterのアクセストークンを入力してください。
+- ACCESS_TOKEN_SECRET: Twitterのアクセストークンシークレットを入力してください。
+- OPENAI_APIKEY: OpenAIのAPIキーを入力してください。
+- GOOGLE_API_KEY: Google Cloud Pratformに発行したAPIキーを入力してください。
 -GOOGLE_CSE_ID: Google Cloud PratformのCustom Search設定時に発行した検索エンジンIDを設定してください。
--ADMIN_PASSWORD: WEBの管理画面のログインに使用する管理者パスワードです。このシステムはインターネットから誰でも触れるので、必ず複雑なパスワードを設定してください。
+- ADMIN_PASSWORD: WEBの管理画面のログインに使用する管理者パスワードです。このシステムはインターネットから誰でも触れるので、必ず複雑なパスワードを設定してください。
 
 ## 注意
 このアプリケーションはFlaskベースで作成されています。そのため、任意のウェブサーバー上にデプロイすることが可能ですが、前提としてはGoogle Cloud runでの動作を想定しています。デプロイ方法は使用するウェブサーバーによります。
