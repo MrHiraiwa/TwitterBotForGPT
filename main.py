@@ -5,7 +5,7 @@ import tweepy
 from google.cloud import firestore
 from datetime import datetime, time, timedelta
 import pytz
-from flask import Flask, request, render_template, session, redirect, url_for, jsonify, abort
+from flask import Flask, request, render_template, session, redirect, url_for, jsonify
 from langchainagent import langchain_agent
 import unicodedata
 
@@ -159,21 +159,29 @@ def settings():
 @app.route('/tweet')
 def create_tweet():
     reload_settings()
-    future = executor.submit(_create_tweet, 0)  # Futureオブジェクトを受け取ります
+    future = executor.submit(generate_tweet, 0, None)  # Futureオブジェクトを受け取ります
     try:
         future.result()  
     except Exception as e:
         print(f"Error: {e}")  # エラーメッセージを表示します
     return jsonify({"status": "Tweet creation started"}), 200
 
-def _create_tweet(retry_count):
+def generate_tweet(retry_count, result):
     if retry_count >= REGENERATE_COUNT:
         print("Exceeded maximum retry attempts.")
         return
+    
+    if result is None:
+        # First attempt
+        instruction = order
+    else:
+        # Retry
+        instruction = REGENERATE_ORDER + "\n" + result
 
-    result = langchain_agent(order,AI_MODEL)
+    result = langchain_agent(instruction, AI_MODEL)
     result = result.strip('"') 
     character_count = count_chars(result)
+    
     if 1 <= character_count <= 280: 
         try:
             response = client.create_tweet(text = result)
@@ -182,25 +190,7 @@ def _create_tweet(retry_count):
             print(f"An Tweep error occurred: {e}")
     else:
         print(f"character_count is {character_count} retrying...")
-        _recreate_tweet(result, retry_count + 1)
-
-def _recreate_tweet(REGENERATE_ORDER + "\n" + result, retry_count):
-    if retry_count >= REGENERATE_COUNT:
-        print("Exceeded maximum retry attempts.")
-        return
-
-    result = langchain_agent(order + result ,AI_MODEL)
-    result = result.strip('"') 
-    character_count = count_chars(result)
-    if 1 <= character_count <= 280: 
-        try:
-            response = client.create_tweet(text = result)
-            print(f"response : {response}")
-        except tweepy.errors.TweepyException as e:
-            print(f"An Tweep error occurred: {e}")
-    else:
-        print(f"character_count is {character_count} retrying...")
-        _create_tweet(retry_count + 1)
+        generate_tweet(retry_count + 1, result)
 
 def count_chars(s):
     count = 0
