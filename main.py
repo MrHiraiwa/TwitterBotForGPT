@@ -5,7 +5,7 @@ import tweepy
 from google.cloud import firestore
 from datetime import datetime, time, timedelta
 import pytz
-from flask import Flask, request, render_template, session, redirect, url_for, jsonify, abort
+from flask import Flask, request, render_template, session, redirect, url_for, jsonify
 from langchainagent import langchain_agent
 import unicodedata
 
@@ -18,12 +18,12 @@ admin_password = os.environ["ADMIN_PASSWORD"]
 REQUIRED_ENV_VARS = [
     "ORDER",
     "AI_MODEL",
+    "REGENERATE_ORDER",
     "REGENERATE_COUNT",
 ]
 
 DEFAULT_ENV_VARS = {
     'AI_MODEL': 'gpt-4-0613',
-    'REGENERATE_COUNT': '5',
     'ORDER': """
 あなたは、Twitter投稿者です。
 検索は行わずに次のURLからURLのリストを読み込んで{nowDateStr}のAI関連のニュースを一つ選び、下記の条件に従ってツイートしてください。
@@ -41,6 +41,8 @@ https://news.yahoo.co.jp/search?p=ai&ei=utf-8
 -出力文 は口語体で記述してください。
 -文脈に応じて、任意の場所で絵文字を使ってください。
 """,
+    'REGENERATE_ORDER': '以下の文章はツイートするのに長すぎました。少し短くして出力してください。',
+    'REGENERATE_COUNT': '5',
 }
 
 client = tweepy.Client(
@@ -53,13 +55,14 @@ client = tweepy.Client(
 db = firestore.Client()
 
 def reload_settings():
-    global order, nowDate, nowDateStr, jst, AI_MODEL, REGENERATE_COUNT
+    global order, nowDate, nowDateStr, jst, AI_MODEL, REGENERATE_ORDER, REGENERATE_COUNT
     jst = pytz.timezone('Asia/Tokyo')
     nowDate = datetime.now(jst)
     nowDateStr = nowDate.strftime('%Y年%m月%d日')
-    REGENERATE_COUNT = int(get_setting('REGENERATE_COUNT') or 5)
     AI_MODEL = get_setting('AI_MODEL')
     ORDER = get_setting('ORDER').split(',')
+    REGENERATE_ORDER = get_setting('REGENERATE_ORDER')
+    REGENERATE_COUNT = int(get_setting('REGENERATE_COUNT') or 5)
     order = random.choice(ORDER)  # ORDER配列からランダムに選択
     order = order.strip()  # 先頭と末尾の改行コードを取り除く
     if '{nowDateStr}' in order:
@@ -156,21 +159,29 @@ def settings():
 @app.route('/tweet')
 def create_tweet():
     reload_settings()
-    future = executor.submit(_create_tweet, 0)  # Futureオブジェクトを受け取ります
+    future = executor.submit(generate_tweet, 0, None)  # Futureオブジェクトを受け取ります
     try:
         future.result()  
     except Exception as e:
         print(f"Error: {e}")  # エラーメッセージを表示します
     return jsonify({"status": "Tweet creation started"}), 200
 
-def _create_tweet(retry_count):
+def generate_tweet(retry_count, result):
     if retry_count >= REGENERATE_COUNT:
         print("Exceeded maximum retry attempts.")
         return
+    
+    if result is None:
+        # First attempt
+        instruction = order
+    else:
+        # Retry
+        instruction = REGENERATE_ORDER + "\n" + result
 
-    result = langchain_agent(order,AI_MODEL)
+    result = langchain_agent(instruction, AI_MODEL)
     result = result.strip('"') 
     character_count = count_chars(result)
+    
     if 1 <= character_count <= 280: 
         try:
             response = client.create_tweet(text = result)
@@ -179,7 +190,7 @@ def _create_tweet(retry_count):
             print(f"An Tweep error occurred: {e}")
     else:
         print(f"character_count is {character_count} retrying...")
-        _create_tweet(retry_count + 1)
+        generate_tweet(retry_count + 1, result)
 
 def count_chars(s):
     count = 0
