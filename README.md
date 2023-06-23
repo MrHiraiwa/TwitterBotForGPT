@@ -1,1 +1,1 @@
-# TwitterForGPT
+# TwitterBotForGPT
