@@ -23,7 +23,7 @@ REQUIRED_ENV_VARS = [
 ]
 
 DEFAULT_ENV_VARS = {
-    'AI_MODEL': 'gpt-3.5-turbo-0613',
+    'AI_MODEL': 'gpt-4-0613',
     'ORDER': """
 あなたは、Twitter投稿者です。
 検索は行わずに次のURLからURLのリストを読み込んで{nowDateStr}のAI関連のニュースを一つ選び、下記の条件に従ってツイートしてください。
@@ -41,7 +41,7 @@ https://news.yahoo.co.jp/search?p=ai&ei=utf-8
 -出力文 は口語体で記述してください。
 -文脈に応じて、任意の場所で絵文字を使ってください。
 """,
-    'REGENERATE_ORDER': '以下の文章はツイートするのに長すぎました。少し短くして出力してツイートしてください。',
+    'REGENERATE_ORDER': '以下の文章はツイートするのに長すぎました。少し短くして出力してください。',
     'REGENERATE_COUNT': '5',
 }
 
