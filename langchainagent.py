@@ -61,6 +61,7 @@ def generate_image(prompt):
         size="256x256",
         response_format="url"
     )
+    return response['data'][0]['url']
     
 tools = [
     Tool(
