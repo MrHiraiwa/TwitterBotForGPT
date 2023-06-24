@@ -11,6 +11,10 @@ from urllib.parse import urljoin
 import openai
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+import time
 
 # Seleniumの設定
 options = Options()
@@ -18,7 +22,10 @@ options.add_argument("--headless")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 
-driver = webdriver.Chrome(options=options)  # これが正しい初期化方法です
+# ユーザーエージェントを偽装する
+options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+
+driver = webdriver.Chrome(options=options)  
 
 google_search = GoogleSearchAPIWrapper()
 
@@ -45,30 +52,47 @@ def scrape_links_and_text(url):
     # 指定したURLに移動
     driver.get(url)
     
-    # 現在のページのHTMLを取得
+    # 任意の要素がロードされるまで待つ
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+
+    # 初期フレームのリンクを取得
     html = driver.page_source
-    
-    # BeautifulSoupを使ってHTMLを解析
     soup = BeautifulSoup(html, "html.parser")
-
-    for element in soup(['script', 'style', 'meta']):  # Remove these tags
-        element.decompose()
-
     links = soup.find_all('a')
-
     result = ""
     for link in links:
         link_url = urljoin(url, link.get('href', ''))
         text = link.text.strip()
-        result += f"{link_url} : {text}\n"
 
-    texts = soup.findAll(text=True)
-    visible_texts = filter(tag_visible, texts)
-    result += " ".join(t.strip() for t in visible_texts)
+        if text not in url_links_filter:
+        # 条件が成立する場合の処理
+            result += f"{link_url} : {text}\n"
 
-    return result[:1500]  # Truncate the result string to 1500 characters
+    # iframe内のリンクを取得
+    iframes = driver.find_elements(By.TAG_NAME, 'iframe')
+    for iframe in iframes:
+        driver.switch_to.frame(iframe)
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+        iframe_html = driver.page_source
+        iframe_soup = BeautifulSoup(iframe_html, "html.parser")
+        iframe_links = iframe_soup.find_all('a')
+        for link in iframe_links:
+            link_url = urljoin(url, link.get('href', ''))
+            text = link.text.strip()
+            result += f"{link_url} : {text}\n"
+
+        # iframe内のテキストも取得
+        iframe_texts = iframe_soup.findAll(text=True)
+        visible_texts = filter(tag_visible, iframe_texts)
+        result += " ".join(t.strip() for t in visible_texts)
+
+        driver.switch_to.default_content()
+
+    return result[:2000]  # Truncate the result string to 1500 characters
+
 
 def generate_image(prompt):
+    global image_result  # グローバル変数を使用することを宣言
     response = openai.Image.create(
         prompt=prompt,
         n=1,
@@ -76,7 +100,9 @@ def generate_image(prompt):
         response_format="url"
     )
     image_result = response['data'][0]['url']  # グローバル変数に値を代入
+    time.sleep(10)
     return 'generated the image. Images are tweeted separately from messages'
+
     
 tools = [
     Tool(
@@ -101,7 +127,9 @@ tools = [
     ),
 ]
 
-def langchain_agent(question,AI_MODEL):
+def langchain_agent(question,AI_MODEL, URL_LINKS_FILTER):
+    global url_links_filter
+    url_links_filter = URL_LINKS_FILTER
     llm = ChatOpenAI(model=AI_MODEL)
     mrkl = initialize_agent(tools, llm, agent=AgentType.OPENAI_FUNCTIONS, verbose=True)
     try:
