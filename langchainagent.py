@@ -52,26 +52,22 @@ def scrape_links_and_text(url):
     driver.get(url)
     
     # 任意の要素がロードされるまで待つ
-    # ここではbodyタグがロードされるまで待つことにします
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
 
-    # 現在のページのHTMLを取得して解析
+    # 初期フレームのリンクを取得
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
-    
-    # 初期フレームのリンクを取得
     links = soup.find_all('a')
     result = ""
     for link in links:
         link_url = urljoin(url, link.get('href', ''))
         text = link.text.strip()
         result += f"{link_url} : {text}\n"
-    
-    # iframeにスイッチしてリンクを取得
-    iframes = soup.find_all('iframe')
-    for index, iframe in enumerate(iframes):
-        # フレームに移動
-        driver.switch_to.frame(index)  # indexでiframeに移動
+
+    # iframe内のリンクを取得
+    iframes = driver.find_elements_by_tag_name('iframe')
+    for iframe in iframes:
+        driver.switch_to.frame(iframe)
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
         iframe_html = driver.page_source
         iframe_soup = BeautifulSoup(iframe_html, "html.parser")
@@ -80,12 +76,13 @@ def scrape_links_and_text(url):
             link_url = urljoin(url, link.get('href', ''))
             text = link.text.strip()
             result += f"{link_url} : {text}\n"
-        # メインのフレームに戻る
-        driver.switch_to.default_content()
 
-    texts = soup.findAll(text=True)
-    visible_texts = filter(tag_visible, texts)
-    result += " ".join(t.strip() for t in visible_texts)
+        # iframe内のテキストも取得
+        iframe_texts = iframe_soup.findAll(text=True)
+        visible_texts = filter(tag_visible, iframe_texts)
+        result += " ".join(t.strip() for t in visible_texts)
+
+        driver.switch_to.default_content()
 
     return result[:1500]  # Truncate the result string to 1500 characters
 
