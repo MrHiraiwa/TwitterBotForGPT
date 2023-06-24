@@ -189,7 +189,7 @@ def generate_tweet(retry_count, result):
 
     result, image_result = langchain_agent(instruction, AI_MODEL)
     result = result.strip('"') 
-    character_count = count_chars(result)
+    character_count = parse_tweet(result)
     
     if 1 <= character_count <= 280: 
         try:
@@ -210,27 +210,6 @@ def generate_tweet(retry_count, result):
     else:
         print(f"character_count is {character_count} retrying...")
         generate_tweet(retry_count + 1, result)
-
-
-def count_chars(s):
-    count = 0
-    urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', s)
-    s = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', '', s)
-    for c in s:
-        try:
-            char_name = unicodedata.name(c)
-            if 'HIRAGANA' in char_name or 'KATAKANA' in char_name:
-                count += 2
-            elif ord(c) < 128:
-                count += 1
-            else:
-                count += 2
-        except ValueError:
-            # For characters that do not have a Unicode name, we assume they are control characters
-            count += 1
-
-    count += len(urls) * 23 # Each URL is counted as 23 characters
-    return count
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
