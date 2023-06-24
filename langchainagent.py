@@ -47,29 +47,40 @@ def tag_visible(element):
 def scrape_links_and_text(url):
     # 指定したURLに移動
     driver.get(url)
-    
-    # 現在のページのHTMLを取得
+
+    # 現在のページのHTMLを取得して解析
     html = driver.page_source
-    
-    # BeautifulSoupを使ってHTMLを解析
     soup = BeautifulSoup(html, "html.parser")
-
-    for element in soup(['script', 'style', 'meta']):  # Remove these tags
-        element.decompose()
-
+    
+    # 初期フレームのリンクを取得
     links = soup.find_all('a')
-
     result = ""
     for link in links:
         link_url = urljoin(url, link.get('href', ''))
         text = link.text.strip()
         result += f"{link_url} : {text}\n"
+    
+    # iframeにスイッチしてリンクを取得
+    iframes = driver.find_elements_by_tag_name('iframe')
+    for index, iframe in enumerate(iframes):
+        # フレームに移動
+        driver.switch_to.frame(iframe)
+        iframe_html = driver.page_source
+        iframe_soup = BeautifulSoup(iframe_html, "html.parser")
+        iframe_links = iframe_soup.find_all('a')
+        for link in iframe_links:
+            link_url = urljoin(url, link.get('href', ''))
+            text = link.text.strip()
+            result += f"{link_url} : {text}\n"
+        # メインのフレームに戻る
+        driver.switch_to.default_content()
 
     texts = soup.findAll(text=True)
     visible_texts = filter(tag_visible, texts)
     result += " ".join(t.strip() for t in visible_texts)
 
     return result[:1500]  # Truncate the result string to 1500 characters
+
 
 def generate_image(prompt):
     response = openai.Image.create(
