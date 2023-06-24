@@ -12,6 +12,8 @@ import openai
 
 google_search = GoogleSearchAPIWrapper()
 
+ image_result =[]
+
 def link_results(query):
     return google_search.results(query,10)
 
@@ -73,7 +75,6 @@ def scrape_links_and_text(url):
     return result[:1500]  # Truncate the result string to 1500 characters
 
 def generate_image(prompt):
-    global image_result  # image_resultをグローバル変数として宣言
     response = openai.Image.create(
         prompt=prompt,
         n=1,
