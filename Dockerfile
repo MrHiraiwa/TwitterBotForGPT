@@ -11,7 +11,16 @@ WORKDIR $APP_HOME
 COPY . ./
 
 # Install production dependencies.
-RUN apt-get update && apt-get install -y 
+RUN apt-get update && apt-get install -y wget unzip curl
+RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+RUN dpkg -i google-chrome-stable_current_amd64.deb; apt-get -fy install
+RUN LATEST=`curl -sSL https://chromedriver.storage.googleapis.com/LATEST_RELEASE` &&\
+    echo "Installing chromium webdriver version ${LATEST}" &&\
+    wget https://chromedriver.storage.googleapis.com/${LATEST}/chromedriver_linux64.zip &&\
+    unzip chromedriver_linux64.zip &&\
+    mv chromedriver /usr/bin/chromedriver &&\
+    chown root:root /usr/bin/chromedriver &&\
+    chmod +x /usr/bin/chromedriver
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Run the web service on container startup. Here we use the gunicorn

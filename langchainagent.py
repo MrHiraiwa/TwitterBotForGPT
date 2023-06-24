@@ -9,8 +9,20 @@ import re
 import requests
 from urllib.parse import urljoin
 import openai
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
+# Seleniumの設定
+options = Options()
+options.add_argument("--headless")  
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+
+driver = webdriver.Chrome(options=options)  # これが正しい初期化方法です
 
 google_search = GoogleSearchAPIWrapper()
+
+image_result = []
 
 def link_results(query):
     return google_search.results(query,10)
@@ -30,11 +42,14 @@ def tag_visible(element):
     return True
 
 def scrape_links_and_text(url):
-    response = requests.get(url)
-    response.raise_for_status()
-    response.encoding = response.apparent_encoding
-
-    soup = BeautifulSoup(response.text, "html.parser")
+    # 指定したURLに移動
+    driver.get(url)
+    
+    # 現在のページのHTMLを取得
+    html = driver.page_source
+    
+    # BeautifulSoupを使ってHTMLを解析
+    soup = BeautifulSoup(html, "html.parser")
 
     for element in soup(['script', 'style', 'meta']):  # Remove these tags
         element.decompose()
@@ -53,10 +68,7 @@ def scrape_links_and_text(url):
 
     return result[:1500]  # Truncate the result string to 1500 characters
 
-image_result = []
-
 def generate_image(prompt):
-    global image_result  # image_resultをグローバル変数として宣言
     response = openai.Image.create(
         prompt=prompt,
         n=1,
@@ -65,7 +77,6 @@ def generate_image(prompt):
     )
     image_result = response['data'][0]['url']  # グローバル変数に値を代入
     return 'generated the image. Images are tweeted separately from messages'
-
     
 tools = [
     Tool(
@@ -100,4 +111,3 @@ def langchain_agent(question,AI_MODEL):
         print(f"An error occurred: {e}")
         # 何らかのデフォルト値やエラーメッセージを返す
         return "An error occurred while processing the question"
- 
