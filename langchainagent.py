@@ -93,6 +93,7 @@ def scrape_links_and_text(url):
 
 
 def generate_image(prompt):
+    global image_result  # グローバル変数を使用することを宣言
     response = openai.Image.create(
         prompt=prompt,
         n=1,
@@ -102,6 +103,7 @@ def generate_image(prompt):
     image_result = response['data'][0]['url']  # グローバル変数に値を代入
     time.sleep(10)
     return 'generated the image. Images are tweeted separately from messages'
+
     
 tools = [
     Tool(
