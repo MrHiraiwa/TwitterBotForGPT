@@ -160,7 +160,6 @@ def settings():
     )
 
 @app.route('/tweet')
-image_result = []
 def create_tweet():
     reload_settings()
     future = executor.submit(generate_tweet, 0, None)  # Futureオブジェクトを受け取ります
@@ -171,6 +170,7 @@ def create_tweet():
     return jsonify({"status": "Tweet creation started"}), 200
 
 def generate_tweet(retry_count, result):
+    image_result = []
     if retry_count >= REGENERATE_COUNT:
         print("Exceeded maximum retry attempts.")
         return
