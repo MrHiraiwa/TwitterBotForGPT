@@ -63,9 +63,8 @@ def scrape_links_and_text(url):
     for link in links:
         link_url = urljoin(url, link.get('href', ''))
         text = link.text.strip()
-        excluded_keywords = ["マイページ", "ログイン", "新規取得", "ヘルプ", "Yahoo! JAPAN", "キッズ", "WORLD", "ハートネット", "アーカイブス", "語学", "ラーニング", "for School", "スポーツ", "ラジオ", "NHK_PR", "音楽", "アニメ", "ドラマ", "天気", "健康", "コロナ・感染症コロナ・感染", "番組表番組表", "受信料の窓口", "NHKプラス", "番組表", "ニュース", "コロナ・感染症", "NHKについて", "NHK", "ホーム", "おすすめ", "フォロー中", "ニュース ショーケース", "日本", "世界", "世界", "ビジネス","科学＆テクノロジー", "エンタメ", "購入履歴", "トップ", "速報", "ライブ", "個人", "オリジナル", "みんなの意見", "ランキング", "有料", "ローカル", "ウェザーニュース" , "トップニュース", "すべての記事", "Yahoo!ニュース", "＠IT"]
 
-        if text not in excluded_keywords:
+        if text not in URL_LINKS_FILTER:
         # 条件が成立する場合の処理
             result += f"{link_url} : {text}\n"
 
@@ -128,7 +127,8 @@ tools = [
     ),
 ]
 
-def langchain_agent(question,AI_MODEL):
+def langchain_agent(question,AI_MODEL, URL_LINKS_FILTER):
+    global URL_LINKS_FILTER
     llm = ChatOpenAI(model=AI_MODEL)
     mrkl = initialize_agent(tools, llm, agent=AgentType.OPENAI_FUNCTIONS, verbose=True)
     try:
