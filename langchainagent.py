@@ -9,6 +9,10 @@ import re
 import requests
 from urllib.parse import urljoin
 import openai
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
 
 google_search = GoogleSearchAPIWrapper()
 
@@ -31,26 +35,22 @@ def tag_visible(element):
         return False
     return True
 
-def scrape_frame_links(soup, base_url):
-    frame_links = []
-    frames = soup.find_all(['frame', 'iframe'])  # これが変更されています
-    for frame in frames:
-        frame_url = urljoin(base_url, frame.get('src', ''))
-        response = requests.get(frame_url)
-        frame_soup = BeautifulSoup(response.text, "html.parser")
-        links = frame_soup.find_all('a')
-        for link in links:
-            link_url = urljoin(frame_url, link.get('href', ''))
-            text = link.text.strip()
-            frame_links.append((link_url, text))
-    return frame_links
-
 def scrape_links_and_text(url):
-    response = requests.get(url)
-    response.raise_for_status()
-    response.encoding = response.apparent_encoding
-
-    soup = BeautifulSoup(response.text, "html.parser")
+    # WebDriverのセットアップ
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service)
+    
+    # 指定したURLに移動
+    driver.get(url)
+    
+    # 現在のページのHTMLを取得
+    html = driver.page_source
+    
+    # WebDriverを閉じます（重要）
+    driver.quit()
+    
+    # BeautifulSoupを使ってHTMLを解析
+    soup = BeautifulSoup(html, "html.parser")
 
     for element in soup(['script', 'style', 'meta']):  # Remove these tags
         element.decompose()
@@ -61,11 +61,6 @@ def scrape_links_and_text(url):
     for link in links:
         link_url = urljoin(url, link.get('href', ''))
         text = link.text.strip()
-        result += f"{link_url} : {text}\n"
-
-    # Scrape links from frames
-    frame_links = scrape_frame_links(soup, url)
-    for link_url, text in frame_links:
         result += f"{link_url} : {text}\n"
 
     texts = soup.findAll(text=True)
