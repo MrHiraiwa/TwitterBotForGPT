@@ -58,7 +58,6 @@ image_result = []
 def generate_image(prompt):
     global image_result  # image_resultをグローバル変数として宣言
     response = openai.Image.create(
-        model="image-alpha-001",
         prompt=prompt,
         n=1,
         size="256x256",
