@@ -64,7 +64,7 @@ def scrape_links_and_text(url):
         link_url = urljoin(url, link.get('href', ''))
         text = link.text.strip()
 
-        if text not in URL_LINKS_FILTER:
+        if text not in url_links_filter:
         # 条件が成立する場合の処理
             result += f"{link_url} : {text}\n"
 
@@ -128,7 +128,8 @@ tools = [
 ]
 
 def langchain_agent(question,AI_MODEL, URL_LINKS_FILTER):
-    global URL_LINKS_FILTER
+    global url_links_filter
+    url_links_filter = URL_LINKS_FILTER
     llm = ChatOpenAI(model=AI_MODEL)
     mrkl = initialize_agent(tools, llm, agent=AgentType.OPENAI_FUNCTIONS, verbose=True)
     try:
