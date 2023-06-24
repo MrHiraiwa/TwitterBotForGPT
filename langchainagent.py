@@ -14,6 +14,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+import time
 
 # Seleniumの設定
 options = Options()
@@ -99,6 +100,7 @@ def generate_image(prompt):
         response_format="url"
     )
     image_result = response['data'][0]['url']  # グローバル変数に値を代入
+    time.sleep(10)
     return 'generated the image. Images are tweeted separately from messages'
     
 tools = [
