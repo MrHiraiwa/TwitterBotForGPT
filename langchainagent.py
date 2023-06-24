@@ -29,6 +29,20 @@ def tag_visible(element):
         return False
     return True
 
+def scrape_frame_links(soup, base_url):
+    frame_links = []
+    frames = soup.find_all('frame')
+    for frame in frames:
+        frame_url = urljoin(base_url, frame.get('src', ''))
+        response = requests.get(frame_url)
+        frame_soup = BeautifulSoup(response.text, "html.parser")
+        links = frame_soup.find_all('a')
+        for link in links:
+            link_url = urljoin(frame_url, link.get('href', ''))
+            text = link.text.strip()
+            frame_links.append((link_url, text))
+    return frame_links
+
 def scrape_links_and_text(url):
     response = requests.get(url)
     response.raise_for_status()
@@ -47,13 +61,17 @@ def scrape_links_and_text(url):
         text = link.text.strip()
         result += f"{link_url} : {text}\n"
 
+    # Scrape links from frames
+    frame_links = scrape_frame_links(soup, url)
+    for link_url, text in frame_links:
+        result += f"{link_url} : {text}\n"
+
     texts = soup.findAll(text=True)
     visible_texts = filter(tag_visible, texts)
     result += " ".join(t.strip() for t in visible_texts)
 
     return result[:1500]  # Truncate the result string to 1500 characters
 
-image_result = []
 
 def generate_image(prompt):
     global image_result  # image_resultをグローバル変数として宣言
