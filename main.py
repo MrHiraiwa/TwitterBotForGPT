@@ -9,6 +9,7 @@ import pytz
 from flask import Flask, request, render_template, session, redirect, url_for, jsonify
 from langchainagent import langchain_agent
 import unicodedata
+from twitter_text import parse_tweet
 
 API_KEY = os.getenv('API_KEY')
 API_KEY_SECRET = os.getenv('API_KEY_SECRET')
@@ -41,7 +42,7 @@ https://news.yahoo.co.jp/search?p=ai&ei=utf-8
 -小学生にもわかりやすく書いてください。
 -出力文 は口語体で記述してください。
 -文脈に応じて、任意の場所で絵文字を使ってください。
--参照元のニュース内容に合う画像を生成してください。
+-参照元のニュース内容に合うイメージ画像を生成してください。
 """,
     'REGENERATE_ORDER': '以下の文章はツイートするのに長すぎました。少し短くして出力してください。文書の冒頭の「AIニュースちゃん:」は維持してください。。',
     'REGENERATE_COUNT': '5',
@@ -189,7 +190,7 @@ def generate_tweet(retry_count, result):
 
     result, image_result = langchain_agent(instruction, AI_MODEL)
     result = result.strip('"') 
-    character_count = count_chars(result)
+    character_count = int(parse_tweet(result).weightedLength)
     
     if 1 <= character_count <= 280: 
         try:
@@ -210,27 +211,6 @@ def generate_tweet(retry_count, result):
     else:
         print(f"character_count is {character_count} retrying...")
         generate_tweet(retry_count + 1, result)
-
-
-def count_chars(s):
-    count = 0
-    urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', s)
-    s = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', '', s)
-    for c in s:
-        try:
-            char_name = unicodedata.name(c)
-            if 'HIRAGANA' in char_name or 'KATAKANA' in char_name:
-                count += 2
-            elif ord(c) < 128:
-                count += 1
-            else:
-                count += 2
-        except ValueError:
-            # For characters that do not have a Unicode name, we assume they are control characters
-            count += 1
-
-    count += len(urls) * 23 # Each URL is counted as 23 characters
-    return count
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

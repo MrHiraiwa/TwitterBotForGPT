@@ -10,3 +10,5 @@ pytz
 llama-index
 bs4
 requests
+attrs
+twitter-text-parser
