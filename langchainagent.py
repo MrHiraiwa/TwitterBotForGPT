@@ -61,10 +61,10 @@ def scrape_links_and_text(url):
         result += f"{link_url} : {text}\n"
     
     # iframeにスイッチしてリンクを取得
-    iframes = driver.find_elements_by_tag_name('iframe')
+    iframes = soup.find_all('iframe')
     for index, iframe in enumerate(iframes):
         # フレームに移動
-        driver.switch_to.frame(iframe)
+        driver.switch_to.frame(index)  # indexでiframeに移動
         iframe_html = driver.page_source
         iframe_soup = BeautifulSoup(iframe_html, "html.parser")
         iframe_links = iframe_soup.find_all('a')
