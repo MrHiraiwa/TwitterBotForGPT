@@ -31,7 +31,7 @@ def tag_visible(element):
 
 def scrape_frame_links(soup, base_url):
     frame_links = []
-    frames = soup.find_all('frame')
+    frames = soup.find_all(['frame', 'iframe'])  # これが変更されています
     for frame in frames:
         frame_url = urljoin(base_url, frame.get('src', ''))
         response = requests.get(frame_url)
@@ -71,7 +71,6 @@ def scrape_links_and_text(url):
     result += " ".join(t.strip() for t in visible_texts)
 
     return result[:1500]  # Truncate the result string to 1500 characters
-
 
 def generate_image(prompt):
     global image_result  # image_resultをグローバル変数として宣言
