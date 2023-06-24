@@ -8,6 +8,7 @@ from bs4.element import Comment
 import re
 import requests
 from urllib.parse import urljoin
+import openai
 
 google_search = GoogleSearchAPIWrapper()
 
@@ -52,7 +53,21 @@ def scrape_links_and_text(url):
 
     return result[:1500]  # Truncate the result string to 1500 characters
 
+image_result = []
 
+def generate_image(prompt):
+    global image_result  # image_resultをグローバル変数として宣言
+    response = openai.Image.create(
+        model="image-alpha-001",
+        prompt=prompt,
+        n=1,
+        size="256x256",
+        response_format="url"
+    )
+    image_result = response['data'][0]['url']  # グローバル変数に値を代入
+    return 'generated a image.'
+
+    
 tools = [
     Tool(
         name = "Search",
@@ -69,6 +84,11 @@ tools = [
         func= scraping,
         description="it is a useful tool that can acquire content that does not contain a URL by giving a URL."
     ),
+    Tool(
+        name = "Painting",
+        func= generate_image,
+        description="It is a useful tool that can reply image URL based on the keyword by specifying the several English keywords."
+    ),
 ]
 
 def langchain_agent(question,AI_MODEL):
@@ -76,7 +96,7 @@ def langchain_agent(question,AI_MODEL):
     mrkl = initialize_agent(tools, llm, agent=AgentType.OPENAI_FUNCTIONS, verbose=True)
     try:
         result = mrkl.run(question)
-        return result
+        return result, image_result
     except Exception as e:
         print(f"An error occurred: {e}")
         # 何らかのデフォルト値やエラーメッセージを返す
