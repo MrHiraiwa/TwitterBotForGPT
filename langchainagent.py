@@ -53,7 +53,10 @@ def scrape_links_and_text(url):
 
     return result[:1500]  # Truncate the result string to 1500 characters
 
+image_result = []
+
 def generate_image(prompt):
+    global image_result  # image_resultをグローバル変数として宣言
     response = openai.Image.create(
         model="image-alpha-001",
         prompt=prompt,
@@ -61,7 +64,9 @@ def generate_image(prompt):
         size="256x256",
         response_format="url"
     )
-    return response['data'][0]['url']
+    image_result = response['data'][0]['url']  # グローバル変数に値を代入
+    return 'generated a image.'
+
     
 tools = [
     Tool(
@@ -91,7 +96,7 @@ def langchain_agent(question,AI_MODEL):
     mrkl = initialize_agent(tools, llm, agent=AgentType.OPENAI_FUNCTIONS, verbose=True)
     try:
         result = mrkl.run(question)
-        return result
+        return result, image_result
     except Exception as e:
         print(f"An error occurred: {e}")
         # 何らかのデフォルト値やエラーメッセージを返す
