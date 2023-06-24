@@ -44,6 +44,9 @@ https://news.yahoo.co.jp/search?p=ai&ei=utf-8
     'REGENERATE_ORDER': '以下の文章はツイートするのに長すぎました。少し短くして出力してください。',
     'REGENERATE_COUNT': '5',
 }
+auth = tweepy.OAuthHandler(API_KEY, API_KEY_SECRET)
+auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+api = tweepy.API(auth)
 
 client = tweepy.Client(
     consumer_key = API_KEY,
@@ -157,6 +160,7 @@ def settings():
     )
 
 @app.route('/tweet')
+image_result = []
 def create_tweet():
     reload_settings()
     future = executor.submit(generate_tweet, 0, None)  # Futureオブジェクトを受け取ります
@@ -178,14 +182,19 @@ def generate_tweet(retry_count, result):
         # Retry
         instruction = REGENERATE_ORDER + "\n" + result
 
-    result = langchain_agent(instruction, AI_MODEL)
+    result, image_result = langchain_agent(instruction, AI_MODEL)
     result = result.strip('"') 
     character_count = count_chars(result)
     
     if 1 <= character_count <= 280: 
         try:
-            response = client.create_tweet(text = result)
-            print(f"response : {response}")
+            if image_result: 
+                media = api.media_upload(filename=image_result)
+                response = client.create_tweet(text=result, media_ids=[media.media_id])
+                print(f"response : {response} and image")
+            else:
+                response = client.create_tweet(text = result)
+                print(f"response : {response}")
         except tweepy.errors.TweepyException as e:
             print(f"An Tweep error occurred: {e}")
     else:
