@@ -64,7 +64,7 @@ def generate_image(prompt):
         response_format="url"
     )
     image_result = response['data'][0]['url']  # グローバル変数に値を代入
-    return 'generated a image.'
+    return 'generated the image. Images are tweeted separately from messages'
 
     
 tools = [
