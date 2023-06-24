@@ -1,4 +1,5 @@
 import os
+from io import BytesIO
 import re
 import random
 import tweepy
@@ -169,6 +170,9 @@ def create_tweet():
         print(f"Error: {e}")  # エラーメッセージを表示します
     return jsonify({"status": "Tweet creation started"}), 200
 
+import requests
+from io import BytesIO
+
 def generate_tweet(retry_count, result):
     image_result = []
     if retry_count >= REGENERATE_COUNT:
@@ -188,8 +192,13 @@ def generate_tweet(retry_count, result):
     
     if 1 <= character_count <= 280: 
         try:
-            if image_result: 
-                media = api.media_upload(filename=image_result)
+            if image_result:
+                # Download image from URL
+                response = requests.get(image_result)
+                img_data = BytesIO(response.content)
+                # Upload image to Twitter
+                media = api.media_upload(filename='image.jpg', file=img_data)
+                # Tweet with image
                 response = client.create_tweet(text=result, media_ids=[media.media_id])
                 print(f"response : {response} and image")
             else:
@@ -200,6 +209,7 @@ def generate_tweet(retry_count, result):
     else:
         print(f"character_count is {character_count} retrying...")
         generate_tweet(retry_count + 1, result)
+
 
 def count_chars(s):
     count = 0
