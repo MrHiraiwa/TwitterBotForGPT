@@ -190,7 +190,7 @@ def generate_tweet(retry_count, result):
 
     result, image_result = langchain_agent(instruction, AI_MODEL)
     result = result.strip('"') 
-    character_count = parse_tweet(result)
+    character_count = int(parse_tweet(result))
     
     if 1 <= character_count <= 280: 
         try:
