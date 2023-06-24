@@ -84,7 +84,7 @@ def scrape_links_and_text(url):
 
         driver.switch_to.default_content()
 
-    return result[:1500]  # Truncate the result string to 1500 characters
+    return result[:2000]  # Truncate the result string to 1500 characters
 
 
 def generate_image(prompt):
