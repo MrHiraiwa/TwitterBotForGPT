@@ -47,7 +47,7 @@ https://news.yahoo.co.jp/search?p=ai&ei=utf-8
 あなたは、Twitter投稿者です。
 検索は行わずに次のURLからURLのリストを読み込んで{nowDateStr}のAI関連のニュースを一つ選び、下記の条件に従ってツイートしてください。
 URL:
-https://news.google.com/search?q=ai%20when%3A1d&hl=ja&gl=JP&ceid=JP%3Aja
+https://news.google.com/search?q=ai%20when%3A3h&hl=ja&gl=JP&ceid=JP%3Aja
 条件:
 -{nowDateStr}の記事がない場合は近い日付の記事を選択してください。
 -ツイートする文字数はURLを除いて117文字以内にしてください。
