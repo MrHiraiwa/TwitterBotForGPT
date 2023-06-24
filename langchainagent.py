@@ -65,7 +65,7 @@ def scrape_links_and_text(url):
         result += f"{link_url} : {text}\n"
 
     # iframe内のリンクを取得
-    iframes = driver.find_elements_by_tag_name('iframe')
+    iframes = driver.find_elements(By.TAG_NAME, 'iframe')
     for iframe in iframes:
         driver.switch_to.frame(iframe)
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
