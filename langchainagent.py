@@ -12,7 +12,7 @@ import openai
 
 google_search = GoogleSearchAPIWrapper()
 
- image_result =[]
+image_result =[]
 
 def link_results(query):
     return google_search.results(query,10)
