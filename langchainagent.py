@@ -11,6 +11,9 @@ from urllib.parse import urljoin
 import openai
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 
 # Seleniumの設定
 options = Options()
@@ -47,6 +50,10 @@ def tag_visible(element):
 def scrape_links_and_text(url):
     # 指定したURLに移動
     driver.get(url)
+    
+    # 任意の要素がロードされるまで待つ
+    # ここではbodyタグがロードされるまで待つことにします
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
 
     # 現在のページのHTMLを取得して解析
     html = driver.page_source
@@ -65,6 +72,7 @@ def scrape_links_and_text(url):
     for index, iframe in enumerate(iframes):
         # フレームに移動
         driver.switch_to.frame(index)  # indexでiframeに移動
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
         iframe_html = driver.page_source
         iframe_soup = BeautifulSoup(iframe_html, "html.parser")
         iframe_links = iframe_soup.find_all('a')
