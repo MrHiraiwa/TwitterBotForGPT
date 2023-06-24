@@ -22,6 +22,7 @@ REQUIRED_ENV_VARS = [
     "AI_MODEL",
     "REGENERATE_ORDER",
     "REGENERATE_COUNT",
+    "URL_LINKS_FILTER",
 ]
 
 DEFAULT_ENV_VARS = {
@@ -60,6 +61,7 @@ https://news.google.com/search?q=ai%20when%3A1d&hl=ja&gl=JP&ceid=JP%3Aja
 """,
     'REGENERATE_ORDER': '以下の文章はツイートするのに長すぎました。少し短くして出力してください。文書の冒頭の「AIニュースちゃん:」は維持してください。。',
     'REGENERATE_COUNT': '5',
+    'URL_LINKS_FILTER': 'マイページ,ログイン,新規取得,ヘルプ,Yahoo! JAPAN,キッズ,WORLD,ハートネット,アーカイブス,語学,ラーニング,for School,スポーツ,ラジオ,NHK_PR,音楽,アニメ,ドラマ,天気,健康,コロナ・感染症コロナ・感染,番組表番組表,受信料の窓口,NHKプラス,番組表,ニュース,コロナ・感染症,NHKについて,NHK,ホーム,おすすめ,フォロー中,ニュース ショーケース,日本,世界,世界,ビジネス,科学＆テクノロジー,エンタメ,購入履歴,トップ,速報,ライブ,個人,オリジナル,みんなの意見,ランキング,有料,ローカル,ウェザーニュース,トップニュース,すべての記事,Yahoo!ニュース,＠IT',
 }
 auth = tweepy.OAuthHandler(API_KEY, API_KEY_SECRET)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
@@ -83,11 +85,11 @@ def reload_settings():
     ORDER = get_setting('ORDER').split(',')
     REGENERATE_ORDER = get_setting('REGENERATE_ORDER')
     REGENERATE_COUNT = int(get_setting('REGENERATE_COUNT') or 5)
+    URL_LINKS_FILTER = get_setting('URL_LINKS_FILTER').split(',')
     order = random.choice(ORDER)  # ORDER配列からランダムに選択
     order = order.strip()  # 先頭と末尾の改行コードを取り除く
     if '{nowDateStr}' in order:
         order = order.format(nowDateStr=nowDateStr)
-
 
 def get_setting(key):
     doc_ref = db.collection(u'settings').document('app_settings')
@@ -202,7 +204,7 @@ def generate_tweet(retry_count, result):
         # Retry
         instruction = REGENERATE_ORDER + "\n" + result
 
-    result, image_result = langchain_agent(instruction, AI_MODEL)
+    result, image_result = langchain_agent(instruction, AI_MODEL, URL_LINKS_FILTER)
     result = result.strip('"') 
     character_count = int(parse_tweet(result).weightedLength)
     
