@@ -9,6 +9,7 @@ import pytz
 from flask import Flask, request, render_template, session, redirect, url_for, jsonify
 from langchainagent import langchain_agent
 import unicodedata
+from twitter_text import parse_tweet
 
 API_KEY = os.getenv('API_KEY')
 API_KEY_SECRET = os.getenv('API_KEY_SECRET')
