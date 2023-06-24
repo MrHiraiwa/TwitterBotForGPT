@@ -10,25 +10,19 @@ import requests
 from urllib.parse import urljoin
 import openai
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.utils import ChromeType
 
+# Seleniumの設定
 options = Options()
-options.add_argument("--headless") 
+options.add_argument("--headless")  
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
 
-driver = webdriver.Chrome(service=Service(ChromeDriverManager(chrome_type=ChromeType.GOOGLE).install()), options=options)
+driver = webdriver.Chrome(options=options)  # これが正しい初期化方法です
 
 google_search = GoogleSearchAPIWrapper()
 
-image_result =[]
+image_result = []
 
 def link_results(query):
     return google_search.results(query,10)
@@ -48,18 +42,11 @@ def tag_visible(element):
     return True
 
 def scrape_links_and_text(url):
-    # WebDriverのセットアップ
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service)
-    
     # 指定したURLに移動
     driver.get(url)
     
     # 現在のページのHTMLを取得
     html = driver.page_source
-    
-    # WebDriverを閉じます（重要）
-    driver.quit()
     
     # BeautifulSoupを使ってHTMLを解析
     soup = BeautifulSoup(html, "html.parser")
@@ -90,7 +77,6 @@ def generate_image(prompt):
     )
     image_result = response['data'][0]['url']  # グローバル変数に値を代入
     return 'generated the image. Images are tweeted separately from messages'
-
     
 tools = [
     Tool(
@@ -125,4 +111,3 @@ def langchain_agent(question,AI_MODEL):
         print(f"An error occurred: {e}")
         # 何らかのデフォルト値やエラーメッセージを返す
         return "An error occurred while processing the question"
- 
