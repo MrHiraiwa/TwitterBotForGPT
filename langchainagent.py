@@ -62,7 +62,11 @@ def scrape_links_and_text(url):
     for link in links:
         link_url = urljoin(url, link.get('href', ''))
         text = link.text.strip()
-        result += f"{link_url} : {text}\n"
+        excluded_keywords = ["マイページ", "ログイン", "新規取得", "ヘルプ", "Yahoo! JAPAN", "キッズ", "WORLD", "ハートネット", "アーカイブス", "語学", "ラーニング", "for School", "スポーツ", "ラジオ", "NHK_PR", "音楽", "アニメ", "ドラマ", "天気", "健康", "コロナ・感染症コロナ・感染", "番組表番組表", "受信料の窓口", "NHKプラス", "番組表", "ニュース", "コロナ・感染症", "NHKについて", "NHK"]
+
+        if text not in excluded_keywords:
+        # 条件が成立する場合の処理
+            result += f"{link_url} : {text}\n"
 
     # iframe内のリンクを取得
     iframes = driver.find_elements(By.TAG_NAME, 'iframe')
