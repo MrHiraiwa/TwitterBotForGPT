@@ -96,7 +96,7 @@ def generate_image(prompt):
     response = openai.Image.create(
         prompt=prompt,
         n=1,
-        size="256x256",
+        size="1024x1024",
         response_format="url"
     )
     image_result = response['data'][0]['url']  # グローバル変数に値を代入
