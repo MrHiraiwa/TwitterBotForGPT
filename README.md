@@ -2,7 +2,7 @@
 
 このリポジトリは、Cloudrun上で動作するPythonベースのTwitterボットです。このボットはChatGPT APIを使用して、WEB上の最新情報をTwitter上にツイートします。
 このボットプログラムの機能や設置方法についての詳細は以下のページを確認してください。
-URL
+https://note.com/modern_echium586/n/nebe1d7ae01f2
 
 ## 機能
 以下の機能を持っています。：
