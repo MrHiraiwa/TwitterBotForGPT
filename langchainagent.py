@@ -79,7 +79,9 @@ def scrape_links_and_text(url):
         for link in iframe_links:
             link_url = urljoin(url, link.get('href', ''))
             text = link.text.strip()
-            result += f"{link_url} : {text}\n"
+            if text not in url_links_filter:
+                # 条件が成立する場合の処理
+                result += f"{link_url} : {text}\n"
 
         # iframe内のテキストも取得
         iframe_texts = iframe_soup.findAll(text=True)
