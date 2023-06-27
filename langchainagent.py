@@ -55,11 +55,12 @@ def scrape_links_and_text(url):
     # 任意の要素がロードされるまで待つ
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
 
+    result = ""
+
     # 初期フレームのリンクを取得
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
     links = soup.find_all('a')
-    result = ""
     for link in links:
         link_url = urljoin(url, link.get('href', ''))
         text = link.text.strip()
@@ -70,8 +71,8 @@ def scrape_links_and_text(url):
 
     # iframe内のリンクを取得
     iframes = driver.find_elements(By.TAG_NAME, 'iframe')
-    for iframe in iframes:
-        driver.switch_to.frame(iframe)
+    for i in range(len(iframes)):
+        driver.switch_to.frame(iframes[i])
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
         iframe_html = driver.page_source
         iframe_soup = BeautifulSoup(iframe_html, "html.parser")
@@ -80,7 +81,6 @@ def scrape_links_and_text(url):
             link_url = urljoin(url, link.get('href', ''))
             text = link.text.strip()
             if text not in url_links_filter:
-                # 条件が成立する場合の処理
                 result += f"{link_url} : {text}\n"
 
         # iframe内のテキストも取得
@@ -90,8 +90,7 @@ def scrape_links_and_text(url):
 
         driver.switch_to.default_content()
 
-    return result[:2000]  # Truncate the result string to 1500 characters
-
+    return result[:2000]  
 
 def generate_image(prompt):
     global image_result  # グローバル変数を使用することを宣言
