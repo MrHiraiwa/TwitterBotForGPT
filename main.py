@@ -10,6 +10,7 @@ from flask import Flask, request, render_template, session, redirect, url_for, j
 from langchainagent import langchain_agent
 import unicodedata
 from twitter_text import parse_tweet
+import requests
 
 API_KEY = os.getenv('API_KEY')
 API_KEY_SECRET = os.getenv('API_KEY_SECRET')
@@ -23,6 +24,7 @@ REQUIRED_ENV_VARS = [
     "REGENERATE_ORDER",
     "REGENERATE_COUNT",
     "URL_LINKS_FILTER",
+    "READ_COUNT",
 ]
 
 DEFAULT_ENV_VARS = {
@@ -64,6 +66,7 @@ https://news.google.com/search?q=ai%20when%3A3h&hl=ja&gl=JP&ceid=JP%3Aja
     'REGENERATE_ORDER': '以下の文章はツイートするのに長すぎました。少し短くして出力してください。文書の冒頭の「AIニュースちゃん:」とURLは維持してください。',
     'REGENERATE_COUNT': '5',
     'URL_LINKS_FILTER': 'マイページ,ログイン,新規取得,ヘルプ,Yahoo! JAPAN,キッズ,WORLD,ハートネット,アーカイブス,語学,ラーニング,for School,スポーツ,ラジオ,NHK_PR,音楽,アニメ,ドラマ,天気,健康,コロナ・感染症コロナ・感染,番組表番組表,受信料の窓口,NHKプラス,番組表,ニュース,コロナ・感染症,NHKについて,NHK,ホーム,おすすめ,フォロー中,ニュース ショーケース,日本,世界,世界,ビジネス,科学＆テクノロジー,エンタメ,購入履歴,トップ,速報,ライブ,個人,オリジナル,みんなの意見,ランキング,有料,ローカル,ウェザーニュース,トップニュース,すべての記事,Yahoo!ニュース,＠IT',
+    'READ_COUNT': '1500',
 }
 auth = tweepy.OAuthHandler(API_KEY, API_KEY_SECRET)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
@@ -79,7 +82,7 @@ client = tweepy.Client(
 db = firestore.Client()
 
 def reload_settings():
-    global order, nowDate, nowDateStr, jst, AI_MODEL, REGENERATE_ORDER, REGENERATE_COUNT, URL_LINKS_FILTER
+    global order, nowDate, nowDateStr, jst, AI_MODEL, REGENERATE_ORDER, REGENERATE_COUNT, URL_LINKS_FILTER, READ_COUNT
     jst = pytz.timezone('Asia/Tokyo')
     nowDate = datetime.now(jst)
     nowDateStr = nowDate.strftime('%Y年%m月%d日')
@@ -88,6 +91,7 @@ def reload_settings():
     REGENERATE_ORDER = get_setting('REGENERATE_ORDER')
     REGENERATE_COUNT = int(get_setting('REGENERATE_COUNT') or 5)
     URL_LINKS_FILTER = get_setting('URL_LINKS_FILTER').split(',')
+    READ_COUNT = int(get_setting('READ_COUNT') or 1500)
     order = random.choice(ORDER)  # ORDER配列からランダムに選択
     order = order.strip()  # 先頭と末尾の改行コードを取り除く
     if '{nowDateStr}' in order:
@@ -190,9 +194,6 @@ def create_tweet():
         print(f"Error: {e}")  # エラーメッセージを表示します
     return jsonify({"status": "Tweet creation started"}), 200
 
-import requests
-from io import BytesIO
-
 def generate_tweet(retry_count, result):
     image_result = []
     if retry_count >= REGENERATE_COUNT:
@@ -206,7 +207,7 @@ def generate_tweet(retry_count, result):
         # Retry
         instruction = REGENERATE_ORDER + "\n" + result
 
-    result, image_result = langchain_agent(instruction, AI_MODEL, URL_LINKS_FILTER)
+    result, image_result = langchain_agent(instruction, AI_MODEL, URL_LINKS_FILTER, READ_COUNT)
     result = result.strip('"') 
     character_count = int(parse_tweet(result).weightedLength)
     
