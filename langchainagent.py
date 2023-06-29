@@ -38,7 +38,7 @@ def scraping(query):
     documents = BeautifulSoupWebReader().load_data(urls=[query])
     for i, document in enumerate(documents):
         text = re.sub(r'\n+', '\n', document.text)
-        documents[i] = text[:1500]
+        documents[i] = text[:READ_COUNT]
     return documents
 
 def tag_visible(element):
@@ -90,7 +90,7 @@ def scrape_links_and_text(url):
 
         driver.switch_to.default_content()
 
-    return result[:2000]  
+    return result[:READ_COUNT]  
 
 def generate_image(prompt):
     global image_result  # グローバル変数を使用することを宣言
@@ -128,8 +128,8 @@ tools = [
     ),
 ]
 
-def langchain_agent(question,AI_MODEL, URL_LINKS_FILTER):
-    global url_links_filter
+def langchain_agent(question,AI_MODEL, URL_LINKS_FILTER, READ_COUNT):
+    global url_links_filter, READ_COUNT
     url_links_filter = URL_LINKS_FILTER
     llm = ChatOpenAI(model=AI_MODEL)
     mrkl = initialize_agent(tools, llm, agent=AgentType.OPENAI_FUNCTIONS, verbose=True)
