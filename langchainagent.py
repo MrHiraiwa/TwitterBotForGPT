@@ -39,7 +39,7 @@ def scraping(query):
     documents = BeautifulSoupWebReader().load_data(urls=[query])
     for i, document in enumerate(documents):
         text = re.sub(r'\n+', '\n', document.text)
-        documents[i] = text[:READ_COUNT]
+        documents[i] = text[:read_count]
     return documents
 
 def tag_visible(element):
@@ -91,7 +91,7 @@ def scrape_links_and_text(url):
 
         driver.switch_to.default_content()
 
-    return result[:READ_COUNT]  
+    return result[:read_count]  
 
 def generate_image(prompt):
     global image_result  # グローバル変数を使用することを宣言
