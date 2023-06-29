@@ -129,8 +129,9 @@ tools = [
 ]
 
 def langchain_agent(question,AI_MODEL, URL_LINKS_FILTER, READ_COUNT):
-    global url_links_filter, READ_COUNT
+    global url_links_filter, read_count
     url_links_filter = URL_LINKS_FILTER
+    read_count = READ_COUNT
     llm = ChatOpenAI(model=AI_MODEL)
     mrkl = initialize_agent(tools, llm, agent=AgentType.OPENAI_FUNCTIONS, verbose=True)
     try:
