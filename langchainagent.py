@@ -57,6 +57,7 @@ def scraping(url):
             # Remove extra whitespace by splitting and joining
             result = ' '.join(result.split())
 
+            print(result[:read_text_count])
             return result[:read_text_count]  
 
         except Exception as e:
