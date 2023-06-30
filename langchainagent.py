@@ -30,16 +30,42 @@ driver = webdriver.Chrome(options=options)
 google_search = GoogleSearchAPIWrapper()
 
 image_result = []
+read_text_count = []
+read_links_count = []
 
 def link_results(query):
     return google_search.results(query,10)
 
-def scraping(query):
-    documents = BeautifulSoupWebReader().load_data(urls=[query])
-    for i, document in enumerate(documents):
-        text = re.sub(r'\n+', '\n', document.text)
-        documents[i] = text[:1500]
-    return documents
+
+def scraping(url):
+    retries = 3  # Maximum number of retries
+    for attempt in range(retries):
+        try:
+            # 指定したURLに移動
+            driver.get(url)
+
+            # 任意の要素がロードされるまで待つ
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+
+            html = driver.page_source
+            soup = BeautifulSoup(html, "html.parser")
+
+            texts = soup.findAll(text=True)
+            visible_texts = filter(tag_visible, texts)
+            result = " ".join(t.strip() for t in visible_texts)
+
+            # Remove extra whitespace by splitting and joining
+            result = ' '.join(result.split())
+
+            print(result[:read_text_count])
+            return result[:read_text_count]  
+
+        except Exception as e:
+            if attempt < retries - 1:  # if it's not the last attempt
+                time.sleep(10)  # wait for 10 seconds before retrying
+                continue
+            else:
+                raise e
 
 def tag_visible(element):
     if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
@@ -49,48 +75,57 @@ def tag_visible(element):
     return True
 
 def scrape_links_and_text(url):
-    # 指定したURLに移動
-    driver.get(url)
-    
-    # 任意の要素がロードされるまで待つ
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+    retries = 3  # Maximum number of retries
+    for attempt in range(retries):
+        try:
+            # 指定したURLに移動
+            driver.get(url)
+            
+            # 任意の要素がロードされるまで待つ
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
 
-    result = ""
+            result = ""
 
-    # 初期フレームのリンクを取得
-    html = driver.page_source
-    soup = BeautifulSoup(html, "html.parser")
-    links = soup.find_all('a')
-    for link in links:
-        link_url = urljoin(url, link.get('href', ''))
-        text = link.text.strip()
+            # 初期フレームのリンクを取得
+            html = driver.page_source
+            soup = BeautifulSoup(html, "html.parser")
+            links = soup.find_all('a')
+            for link in links:
+                link_url = urljoin(url, link.get('href', ''))
+                text = link.text.strip()
 
-        if text not in url_links_filter:
-        # 条件が成立する場合の処理
-            result += f"{link_url} : {text}\n"
+                if text not in url_links_filter:
+                    result += f"{link_url} : {text}\n"
 
-    # iframe内のリンクを取得
-    iframes = driver.find_elements(By.TAG_NAME, 'iframe')
-    for i in range(len(iframes)):
-        driver.switch_to.frame(iframes[i])
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-        iframe_html = driver.page_source
-        iframe_soup = BeautifulSoup(iframe_html, "html.parser")
-        iframe_links = iframe_soup.find_all('a')
-        for link in iframe_links:
-            link_url = urljoin(url, link.get('href', ''))
-            text = link.text.strip()
-            if text not in url_links_filter:
-                result += f"{link_url} : {text}\n"
+            # iframe内のリンクを取得
+            iframes = driver.find_elements(By.TAG_NAME, 'iframe')
+            for i in range(len(iframes)):
+                driver.switch_to.frame(iframes[i])
+                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+                iframe_html = driver.page_source
+                iframe_soup = BeautifulSoup(iframe_html, "html.parser")
+                iframe_links = iframe_soup.find_all('a')
+                for link in iframe_links:
+                    link_url = urljoin(url, link.get('href', ''))
+                    text = link.text.strip()
+                    if text not in url_links_filter:
+                        result += f"{link_url} : {text}\n"
 
-        # iframe内のテキストも取得
-        iframe_texts = iframe_soup.findAll(text=True)
-        visible_texts = filter(tag_visible, iframe_texts)
-        result += " ".join(t.strip() for t in visible_texts)
+                # iframe内のテキストも取得
+                iframe_texts = iframe_soup.findAll(text=True)
+                visible_texts = filter(tag_visible, iframe_texts)
+                result += " ".join(t.strip() for t in visible_texts)
 
-        driver.switch_to.default_content()
+                driver.switch_to.default_content()
 
-    return result[:2000]  
+            return result[:read_links_count]  
+
+        except Exception as e:
+            if attempt < retries - 1:  # if it's not the last attempt
+                time.sleep(10)  # wait for 10 seconds before retrying
+                continue
+            else:
+                raise e
 
 def generate_image(prompt):
     global image_result  # グローバル変数を使用することを宣言
@@ -114,7 +149,7 @@ tools = [
     Tool(
         name = "Links",
         func= scrape_links_and_text,
-        description="It is a useful tool that can you to obtain a list of URLs by specifying a URL."
+        description="It is a useful tool that can you to obtain a list of URLs by specifying a URL. it is single-input tool."
     ),
     Tool(
         name = "Scraping",
@@ -128,9 +163,11 @@ tools = [
     ),
 ]
 
-def langchain_agent(question,AI_MODEL, URL_LINKS_FILTER):
-    global url_links_filter
+def langchain_agent(question,AI_MODEL, URL_LINKS_FILTER, READ_TEXT_COUNT,  READ_LINKS_COUNT):
+    global url_links_filter, read_text_count, read_links_count
     url_links_filter = URL_LINKS_FILTER
+    read_text_count = READ_TEXT_COUNT
+    read_links_count = READ_LINKS_COUNT
     llm = ChatOpenAI(model=AI_MODEL)
     mrkl = initialize_agent(tools, llm, agent=AgentType.OPENAI_FUNCTIONS, verbose=True)
     try:

@@ -10,6 +10,7 @@ from flask import Flask, request, render_template, session, redirect, url_for, j
 from langchainagent import langchain_agent
 import unicodedata
 from twitter_text import parse_tweet
+import requests
 
 API_KEY = os.getenv('API_KEY')
 API_KEY_SECRET = os.getenv('API_KEY_SECRET')
@@ -23,27 +24,13 @@ REQUIRED_ENV_VARS = [
     "REGENERATE_ORDER",
     "REGENERATE_COUNT",
     "URL_LINKS_FILTER",
+    "READ_TEXT_COUNT",
+    "READ_LINKS_COUNT",
 ]
 
 DEFAULT_ENV_VARS = {
     'AI_MODEL': 'gpt-4-0613',
     'ORDER': """
-あなたは、Twitter投稿者です。
-検索は行わずに次のURLからURLのリストを読み込んで{nowDateStr}のAI関連のニュースを一つ選び、下記の条件に従ってツイートしてください。
-URL:
-https://news.yahoo.co.jp/search?p=ai&ei=utf-8
-条件:
--{nowDateStr}の記事がない場合は近い日付の記事を選択してください。
--ツイートする文字数はURLを除いて117文字以内にしてください。
--検索して発表する形で文書を書かずに、最初から知ってた体裁で書いてください。
--冒頭に「選んだ」「検索した」等の記載は不要です。
--文書の冒頭は「AIニュースちゃん:」から初めてください。
--ニュースだけを短く簡潔に書いてください。
--記事の参照元URLを提示してください。
--小学生にもわかりやすく書いてください。
--出力文 は口語体で記述してください。
--文脈に応じて、任意の場所で絵文字を使ってください。
-画像を生成しないでください。,
 あなたは、Twitter投稿者です。
 検索は行わずに次のURLからURLのリストを読み込んで{nowDateStr}のAI関連のニュースを一つ選び、下記の条件に従ってツイートしてください。
 URL:
@@ -64,6 +51,8 @@ https://news.google.com/search?q=ai%20when%3A3h&hl=ja&gl=JP&ceid=JP%3Aja
     'REGENERATE_ORDER': '以下の文章はツイートするのに長すぎました。少し短くして出力してください。文書の冒頭の「AIニュースちゃん:」とURLは維持してください。',
     'REGENERATE_COUNT': '5',
     'URL_LINKS_FILTER': 'マイページ,ログイン,新規取得,ヘルプ,Yahoo! JAPAN,キッズ,WORLD,ハートネット,アーカイブス,語学,ラーニング,for School,スポーツ,ラジオ,NHK_PR,音楽,アニメ,ドラマ,天気,健康,コロナ・感染症コロナ・感染,番組表番組表,受信料の窓口,NHKプラス,番組表,ニュース,コロナ・感染症,NHKについて,NHK,ホーム,おすすめ,フォロー中,ニュース ショーケース,日本,世界,世界,ビジネス,科学＆テクノロジー,エンタメ,購入履歴,トップ,速報,ライブ,個人,オリジナル,みんなの意見,ランキング,有料,ローカル,ウェザーニュース,トップニュース,すべての記事,Yahoo!ニュース,＠IT',
+    'READ_TEXT_COUNT': '1000',
+    'READ_LINKS_COUNT': '2000',
 }
 auth = tweepy.OAuthHandler(API_KEY, API_KEY_SECRET)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
@@ -80,6 +69,7 @@ db = firestore.Client()
 
 def reload_settings():
     global order, nowDate, nowDateStr, jst, AI_MODEL, REGENERATE_ORDER, REGENERATE_COUNT, URL_LINKS_FILTER
+    global READ_TEXT_COUNT,READ_LINKS_COUNT
     jst = pytz.timezone('Asia/Tokyo')
     nowDate = datetime.now(jst)
     nowDateStr = nowDate.strftime('%Y年%m月%d日')
@@ -88,6 +78,8 @@ def reload_settings():
     REGENERATE_ORDER = get_setting('REGENERATE_ORDER')
     REGENERATE_COUNT = int(get_setting('REGENERATE_COUNT') or 5)
     URL_LINKS_FILTER = get_setting('URL_LINKS_FILTER').split(',')
+    READ_TEXT_COUNT = int(get_setting('READ_TEXT_COUNT') or 1000)
+    READ_LINKS_COUNT = int(get_setting('READ_LINKS_COUNT') or 2000)
     order = random.choice(ORDER)  # ORDER配列からランダムに選択
     order = order.strip()  # 先頭と末尾の改行コードを取り除く
     if '{nowDateStr}' in order:
@@ -190,9 +182,6 @@ def create_tweet():
         print(f"Error: {e}")  # エラーメッセージを表示します
     return jsonify({"status": "Tweet creation started"}), 200
 
-import requests
-from io import BytesIO
-
 def generate_tweet(retry_count, result):
     image_result = []
     if retry_count >= REGENERATE_COUNT:
@@ -206,7 +195,7 @@ def generate_tweet(retry_count, result):
         # Retry
         instruction = REGENERATE_ORDER + "\n" + result
 
-    result, image_result = langchain_agent(instruction, AI_MODEL, URL_LINKS_FILTER)
+    result, image_result = langchain_agent(instruction, AI_MODEL, URL_LINKS_FILTER, READ_TEXT_COUNT, READ_LINKS_COUNT)
     result = result.strip('"') 
     character_count = int(parse_tweet(result).weightedLength)
     
