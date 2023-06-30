@@ -36,6 +36,7 @@ read_links_count = []
 def link_results(query):
     return google_search.results(query,10)
 
+
 def scraping(url):
     retries = 3  # Maximum number of retries
     for attempt in range(retries):
@@ -52,6 +53,10 @@ def scraping(url):
             texts = soup.findAll(text=True)
             visible_texts = filter(tag_visible, texts)
             result = " ".join(t.strip() for t in visible_texts)
+
+            # Remove extra whitespace by splitting and joining
+            result = ' '.join(result.split())
+
             return result[:read_text_count]  
 
         except Exception as e:
