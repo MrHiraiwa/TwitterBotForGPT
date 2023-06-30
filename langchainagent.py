@@ -50,48 +50,57 @@ def tag_visible(element):
     return True
 
 def scrape_links_and_text(url):
-    # 指定したURLに移動
-    driver.get(url)
-    
-    # 任意の要素がロードされるまで待つ
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+    retries = 3  # Maximum number of retries
+    for attempt in range(retries):
+        try:
+            # 指定したURLに移動
+            driver.get(url)
+            
+            # 任意の要素がロードされるまで待つ
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
 
-    result = ""
+            result = ""
 
-    # 初期フレームのリンクを取得
-    html = driver.page_source
-    soup = BeautifulSoup(html, "html.parser")
-    links = soup.find_all('a')
-    for link in links:
-        link_url = urljoin(url, link.get('href', ''))
-        text = link.text.strip()
+            # 初期フレームのリンクを取得
+            html = driver.page_source
+            soup = BeautifulSoup(html, "html.parser")
+            links = soup.find_all('a')
+            for link in links:
+                link_url = urljoin(url, link.get('href', ''))
+                text = link.text.strip()
 
-        if text not in url_links_filter:
-        # 条件が成立する場合の処理
-            result += f"{link_url} : {text}\n"
+                if text not in url_links_filter:
+                    result += f"{link_url} : {text}\n"
 
-    # iframe内のリンクを取得
-    iframes = driver.find_elements(By.TAG_NAME, 'iframe')
-    for i in range(len(iframes)):
-        driver.switch_to.frame(iframes[i])
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-        iframe_html = driver.page_source
-        iframe_soup = BeautifulSoup(iframe_html, "html.parser")
-        iframe_links = iframe_soup.find_all('a')
-        for link in iframe_links:
-            link_url = urljoin(url, link.get('href', ''))
-            text = link.text.strip()
-            if text not in url_links_filter:
-                result += f"{link_url} : {text}\n"
+            # iframe内のリンクを取得
+            iframes = driver.find_elements(By.TAG_NAME, 'iframe')
+            for i in range(len(iframes)):
+                driver.switch_to.frame(iframes[i])
+                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+                iframe_html = driver.page_source
+                iframe_soup = BeautifulSoup(iframe_html, "html.parser")
+                iframe_links = iframe_soup.find_all('a')
+                for link in iframe_links:
+                    link_url = urljoin(url, link.get('href', ''))
+                    text = link.text.strip()
+                    if text not in url_links_filter:
+                        result += f"{link_url} : {text}\n"
 
-        # iframe内のテキストも取得
-        iframe_texts = iframe_soup.findAll(text=True)
-        visible_texts = filter(tag_visible, iframe_texts)
-        result += " ".join(t.strip() for t in visible_texts)
+                # iframe内のテキストも取得
+                iframe_texts = iframe_soup.findAll(text=True)
+                visible_texts = filter(tag_visible, iframe_texts)
+                result += " ".join(t.strip() for t in visible_texts)
 
-        driver.switch_to.default_content()
+                driver.switch_to.default_content()
 
-    return result[:read_count]  
+            return result[:read_count]  
+
+        except Exception as e:
+            if attempt < retries - 1:  # if it's not the last attempt
+                time.sleep(10)  # wait for 10 seconds before retrying
+                continue
+            else:
+                raise e
 
 def generate_image(prompt):
     global image_result  # グローバル変数を使用することを宣言
