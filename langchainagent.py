@@ -36,12 +36,30 @@ read_links_count = []
 def link_results(query):
     return google_search.results(query,10)
 
-def scraping(query):
-    documents = BeautifulSoupWebReader().load_data(urls=[query])
-    for i, document in enumerate(documents):
-        text = re.sub(r'\n+', '\n', document.text)
-        documents[i] = text[:read_text_count]
-    return documents
+def scraping(url):
+    retries = 3  # Maximum number of retries
+    for attempt in range(retries):
+        try:
+            # 指定したURLに移動
+            driver.get(url)
+
+            # 任意の要素がロードされるまで待つ
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+
+            html = driver.page_source
+            soup = BeautifulSoup(html, "html.parser")
+
+            texts = soup.findAll(text=True)
+            visible_texts = filter(tag_visible, texts)
+            result = " ".join(t.strip() for t in visible_texts)
+            return result[:read_text_count]  
+
+        except Exception as e:
+            if attempt < retries - 1:  # if it's not the last attempt
+                time.sleep(10)  # wait for 10 seconds before retrying
+                continue
+            else:
+                raise e
 
 def tag_visible(element):
     if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
