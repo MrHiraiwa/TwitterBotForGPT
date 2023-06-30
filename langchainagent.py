@@ -30,7 +30,8 @@ driver = webdriver.Chrome(options=options)
 google_search = GoogleSearchAPIWrapper()
 
 image_result = []
-read_count = []
+read_text_count = []
+read_links_count = []
 
 def link_results(query):
     return google_search.results(query,10)
@@ -39,7 +40,7 @@ def scraping(query):
     documents = BeautifulSoupWebReader().load_data(urls=[query])
     for i, document in enumerate(documents):
         text = re.sub(r'\n+', '\n', document.text)
-        documents[i] = text[:read_count]
+        documents[i] = text[:read_text_count]
     return documents
 
 def tag_visible(element):
@@ -93,7 +94,7 @@ def scrape_links_and_text(url):
 
                 driver.switch_to.default_content()
 
-            return result[:read_count]  
+            return result[:read_links_count]  
 
         except Exception as e:
             if attempt < retries - 1:  # if it's not the last attempt
@@ -138,10 +139,11 @@ tools = [
     ),
 ]
 
-def langchain_agent(question,AI_MODEL, URL_LINKS_FILTER, READ_COUNT):
-    global url_links_filter, read_count
+def langchain_agent(question,AI_MODEL, URL_LINKS_FILTER, READ_TEXT_COUNT,  READ_LINKS_COUNT):
+    global url_links_filter, read_text_count, read_links_count
     url_links_filter = URL_LINKS_FILTER
-    read_count = READ_COUNT
+    read_text_count = READ_TEXT_COUNT
+    read_links_count = READ_LINKS_COUNT
     llm = ChatOpenAI(model=AI_MODEL)
     mrkl = initialize_agent(tools, llm, agent=AgentType.OPENAI_FUNCTIONS, verbose=True)
     try:
