@@ -17,11 +17,17 @@ from selenium.webdriver.common.by import By
 import time
 from google.cloud import firestore
 from datetime import datetime, timedelta
+import urllib.parse
 
 # Firestore clientの初期化
 db = firestore.Client()
 
+
+def create_firestore_document_id_from_url(url):
+    return urllib.parse.quote_plus(url)
+
 def add_url_to_firestore(url):
+    url = create_firestore_document_id_from_url(url)
     doc_ref = db.collection('scraped_urls').document(url)
     doc_ref.set({
         'added_at': datetime.now()
@@ -34,6 +40,7 @@ def add_url_to_firestore(url):
     })
     
 def check_url_in_firestore(url):
+    url = create_firestore_document_id_from_url(url)
     doc_ref = db.collection('scraped_urls').document(url)
     doc = doc_ref.get()
     return doc.exists
