@@ -126,7 +126,6 @@ def scrape_links_and_text(url):
                 # Firestoreに存在しない場合のみ、結果にリンクとテキストを追加
                 if not check_url_in_firestore(link_url):
                     result += f"{link_url} : {text}\n"
-                    add_url_to_firestore(link_url)
 
             # iframe内のリンクを取得
             iframes = driver.find_elements(By.TAG_NAME, 'iframe')
@@ -143,7 +142,6 @@ def scrape_links_and_text(url):
                     # Firestoreに存在しない場合のみ、結果にリンクとテキストを追加
                     if not check_url_in_firestore(link_url):
                         result += f"{link_url} : {text}\n"
-                        add_url_to_firestore(link_url)
 
                 # iframe内のテキストも取得
                 iframe_texts = iframe_soup.findAll(text=True)
