@@ -123,8 +123,8 @@ def scrape_links_and_text(url):
                 link_url = urljoin(url, link.get('href', ''))
                 text = link.text.strip()
 
-                # Firestoreに存在しない場合のみ、結果にリンクとテキストを追加
-                if not check_url_in_firestore(link_url):
+                # URLがフィルタリストになく、またFirestoreに存在しない場合のみ、結果にリンクとテキストを追加
+                if text not in url_links_filter and not check_url_in_firestore(link_url):
                     result += f"{link_url} : {text}\n"
 
             # iframe内のリンクを取得
@@ -139,8 +139,8 @@ def scrape_links_and_text(url):
                     link_url = urljoin(url, link.get('href', ''))
                     text = link.text.strip()
 
-                    # Firestoreに存在しない場合のみ、結果にリンクとテキストを追加
-                    if not check_url_in_firestore(link_url):
+                    # URLがフィルタリストになく、またFirestoreに存在しない場合のみ、結果にリンクとテキストを追加
+                    if text not in url_links_filter and not check_url_in_firestore(link_url):
                         result += f"{link_url} : {text}\n"
 
                 # iframe内のテキストも取得
