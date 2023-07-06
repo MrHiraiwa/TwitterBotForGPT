@@ -15,6 +15,35 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import time
+from google.cloud import firestore
+from datetime import datetime, timedelta
+import urllib.parse
+
+# Firestore clientの初期化
+db = firestore.Client()
+
+
+def create_firestore_document_id_from_url(url):
+    return urllib.parse.quote_plus(url)
+
+def add_url_to_firestore(url):
+    url = create_firestore_document_id_from_url(url)
+    doc_ref = db.collection('scraped_urls').document(url)
+    doc_ref.set({
+        'added_at': datetime.now()
+    })
+
+    # URLを一週間後に削除するタスクをスケジュール
+    delete_at = datetime.now() + timedelta(weeks=1)
+    doc_ref.update({
+        'delete_at': delete_at
+    })
+    
+def check_url_in_firestore(url):
+    url = create_firestore_document_id_from_url(url)
+    doc_ref = db.collection('scraped_urls').document(url)
+    doc = doc_ref.get()
+    return doc.exists
 
 # Seleniumの設定
 options = Options()
@@ -56,7 +85,7 @@ def scraping(url):
 
             # Remove extra whitespace by splitting and joining
             result = ' '.join(result.split())
-
+            add_url_to_firestore(url)
             print(result[:read_text_count])
             return result[:read_text_count]  
 
@@ -80,7 +109,7 @@ def scrape_links_and_text(url):
         try:
             # 指定したURLに移動
             driver.get(url)
-            
+
             # 任意の要素がロードされるまで待つ
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
 
@@ -94,7 +123,8 @@ def scrape_links_and_text(url):
                 link_url = urljoin(url, link.get('href', ''))
                 text = link.text.strip()
 
-                if text not in url_links_filter:
+                # URLがフィルタリストになく、またFirestoreに存在しない場合のみ、結果にリンクとテキストを追加
+                if text not in url_links_filter and not check_url_in_firestore(link_url):
                     result += f"{link_url} : {text}\n"
 
             # iframe内のリンクを取得
@@ -108,7 +138,9 @@ def scrape_links_and_text(url):
                 for link in iframe_links:
                     link_url = urljoin(url, link.get('href', ''))
                     text = link.text.strip()
-                    if text not in url_links_filter:
+
+                    # URLがフィルタリストになく、またFirestoreに存在しない場合のみ、結果にリンクとテキストを追加
+                    if text not in url_links_filter and not check_url_in_firestore(link_url):
                         result += f"{link_url} : {text}\n"
 
                 # iframe内のテキストも取得
