@@ -173,7 +173,7 @@ def generate_image(prompt):
     )
     image_result = response['data'][0]['url']  # グローバル変数に値を代入
     time.sleep(10)
-    return 'generated the image. Images are tweeted separately from messages'
+    return 'generated the image.'
 
     
 tools = [
