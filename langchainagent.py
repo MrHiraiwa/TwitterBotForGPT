@@ -62,6 +62,7 @@ image_result = []
 url_links_filter = []
 read_text_count = []
 read_links_count = []
+painting_enable = []
 
 def link_results(query):
     return google_search.results(query,10)
@@ -161,6 +162,8 @@ def scrape_links_and_text(url):
                 raise e
 
 def generate_image(prompt):
+    if painting_enable == False:
+        return 
     global image_result  # グローバル変数を使用することを宣言
     response = openai.Image.create(
         prompt=prompt,
@@ -196,11 +199,12 @@ tools = [
     ),
 ]
 
-def langchain_agent(question,AI_MODEL, URL_LINKS_FILTER, READ_TEXT_COUNT,  READ_LINKS_COUNT):
+def langchain_agent(question,AI_MODEL, URL_LINKS_FILTER, READ_TEXT_COUNT, READ_LINKS_COUNT, PAINTING):
     global url_links_filter, read_text_count, read_links_count
     url_links_filter = URL_LINKS_FILTER
     read_text_count = READ_TEXT_COUNT
     read_links_count = READ_LINKS_COUNT
+    painting_enable = PAINTING
     llm = ChatOpenAI(model=AI_MODEL)
     mrkl = initialize_agent(tools, llm, agent=AgentType.OPENAI_FUNCTIONS, verbose=True)
     try:
