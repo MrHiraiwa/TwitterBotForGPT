@@ -162,7 +162,7 @@ def scrape_links_and_text(url):
                 raise e
 
 def generate_image(prompt):
-    if painting_enable == False:
+    if painting_enable == 'False':
         return 
     global image_result  # グローバル変数を使用することを宣言
     response = openai.Image.create(
