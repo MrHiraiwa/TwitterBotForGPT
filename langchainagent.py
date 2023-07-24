@@ -59,6 +59,7 @@ driver = webdriver.Chrome(options=options)
 google_search = GoogleSearchAPIWrapper()
 
 image_result = []
+url_links_filter = []
 read_text_count = []
 read_links_count = []
 
