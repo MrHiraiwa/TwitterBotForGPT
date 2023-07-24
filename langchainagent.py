@@ -162,6 +162,7 @@ def scrape_links_and_text(url):
                 raise e
 
 def generate_image(prompt):
+    print(f"paint: {painting_enable}")
     if painting_enable == 'False':
         return 
     global image_result  # グローバル変数を使用することを宣言
