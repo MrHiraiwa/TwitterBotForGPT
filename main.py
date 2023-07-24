@@ -54,7 +54,7 @@ https://news.google.com/search?q=ai%20when%3A3h&hl=ja&gl=JP&ceid=JP%3Aja
     'URL_LINKS_FILTER': 'マイページ,ログイン,新規取得,ヘルプ,Yahoo! JAPAN,キッズ,WORLD,ハートネット,アーカイブス,語学,ラーニング,for School,スポーツ,ラジオ,NHK_PR,音楽,アニメ,ドラマ,天気,健康,コロナ・感染症コロナ・感染,番組表番組表,受信料の窓口,NHKプラス,番組表,ニュース,コロナ・感染症,NHKについて,NHK,ホーム,おすすめ,フォロー中,ニュース ショーケース,日本,世界,世界,ビジネス,科学＆テクノロジー,エンタメ,購入履歴,トップ,速報,ライブ,個人,オリジナル,みんなの意見,ランキング,有料,ローカル,ウェザーニュース,トップニュース,すべての記事,Yahoo!ニュース,＠IT',
     'READ_TEXT_COUNT': '1000',
     'READ_LINKS_COUNT': '2000',
-    'PAINTING': 'True',
+    'PAINTING': 'False',
 }
 auth = tweepy.OAuthHandler(API_KEY, API_KEY_SECRET)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
