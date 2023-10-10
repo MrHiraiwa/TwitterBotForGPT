@@ -15,10 +15,11 @@ RUN apt-get update && apt-get install -y wget unzip curl
 RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 RUN dpkg -i google-chrome-stable_current_amd64.deb; apt-get -fy install
 
-# Get Chrome version, then download compatible ChromeDriver
-RUN CHROME_VERSION=$(google-chrome-stable --version | awk '{ print $3 }' | sed 's/\..*//') && \
-    CHROMEDRIVER_VERSION=$(curl -sSL https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION) && \
-    wget https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip &&\
+# Get Chrome major version, then download compatible ChromeDriver
+RUN CHROME_MAJOR_VERSION=$(google-chrome-stable --version | awk '{ print $3 }' | cut -d '.' -f 1) && \
+    CHROMEDRIVER_VERSION=$(curl -sSL https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAJOR_VERSION) && \
+    echo "Using ChromeDriver version: $CHROMEDRIVER_VERSION" && \
+    wget -N https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip &&\
     unzip chromedriver_linux64.zip &&\
     mv chromedriver /usr/bin/chromedriver &&\
     chown root:root /usr/bin/chromedriver &&\
