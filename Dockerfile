@@ -19,7 +19,7 @@ RUN wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/117.0.5938.
     ln -s /opt/google/chrome/chrome /usr/bin/google-chrome-stable
 
 # Install the ChromeDriver that's compatible with Chrome version 117
-RUN CHROMEDRIVER_VERSION=$(curl -sSL https://chromedriver.storage.googleapis.com/LATEST_RELEASE_117) && \
+RUN CHROMEDRIVER_VERSION="117.0.5938.149" && \
     wget -N https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip &&\
     unzip chromedriver_linux64.zip &&\
     mv chromedriver /usr/bin/chromedriver &&\
