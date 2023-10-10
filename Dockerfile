@@ -11,16 +11,18 @@ WORKDIR $APP_HOME
 COPY . ./
 
 # Install production dependencies.
-RUN apt-get update && apt-get install -y wget unzip curl
+RUN apt-get update && apt-get install -y wget curl unzip gnupg 
 
-# Download and install Chrome version 117.0.5938.149 and its ChromeDriver
-RUN wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/117.0.5938.149/linux64/chrome-linux64.zip &&\
-    unzip chrome-linux64.zip &&\
-    mv chrome-linux64/chrome /usr/bin/google-chrome &&\
-    chmod +x /usr/bin/google-chrome &&\
-    wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/117.0.5938.149/linux64/chromedriver-linux64.zip &&\
-    unzip chromedriver-linux64.zip &&\
-    mv chromedriver-linux64/chromedriver /usr/bin/chromedriver &&\
+# Download and install Chrome version 114.0.5735.90
+RUN wget https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_114.0.5735.90-1_amd64.deb &&\
+    dpkg -i google-chrome-stable_114.0.5735.90-1_amd64.deb || apt-get install -fy
+
+# TODO: You will also need to install the matching ChromeDriver version. 
+# However, finding the exact ChromeDriver version for older Chrome versions can be challenging. 
+# Make sure to replace the ChromeDriver download URL with the correct version.
+RUN wget https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip &&\
+    unzip chromedriver_linux64.zip &&\
+    mv chromedriver /usr/bin/chromedriver &&\
     chown root:root /usr/bin/chromedriver &&\
     chmod +x /usr/bin/chromedriver
 
