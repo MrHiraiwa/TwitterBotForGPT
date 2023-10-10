@@ -12,20 +12,18 @@ COPY . ./
 
 # Install production dependencies.
 RUN apt-get update && apt-get install -y wget unzip curl
-RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-RUN dpkg -i google-chrome-stable_current_amd64.deb; apt-get -fy install
 
-# Get Chrome major version, then download compatible ChromeDriver
-RUN CHROME_MAJOR_VERSION=$(google-chrome-stable --version | awk '{ print $3 }' | cut -d '.' -f 1) && \
-    echo "Detected Chrome major version: $CHROME_MAJOR_VERSION" && \
-    CHROMEDRIVER_VERSION=$(curl -sSL https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAJOR_VERSION) && \
-    echo "Using ChromeDriver version: $CHROMEDRIVER_VERSION" && \
+# Install Chrome version 114 and its corresponding ChromeDriver
+RUN wget https://dl.google.com/linux/direct/google-chrome-stable_114.0.5735.90-1_amd64.deb
+RUN dpkg -i google-chrome-stable_114.0.5735.90-1_amd64.deb; apt-get -fy install
+
+# Install ChromeDriver for Chrome 114
+RUN CHROMEDRIVER_VERSION=$(curl -sSL https://chromedriver.storage.googleapis.com/LATEST_RELEASE_114) && \
     wget -N https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip &&\
     unzip chromedriver_linux64.zip &&\
     mv chromedriver /usr/bin/chromedriver &&\
     chown root:root /usr/bin/chromedriver &&\
     chmod +x /usr/bin/chromedriver
-
 
 RUN pip install --no-cache-dir -r requirements.txt
 
