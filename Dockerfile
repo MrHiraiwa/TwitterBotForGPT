@@ -11,16 +11,21 @@ WORKDIR $APP_HOME
 COPY . ./
 
 # Install production dependencies.
-RUN apt-get update && apt-get install -y wget unzip curl
-RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-RUN dpkg -i google-chrome-stable_current_amd64.deb; apt-get -fy install
-RUN LATEST=`curl -sSL https://chromedriver.storage.googleapis.com/LATEST_RELEASE` &&\
-    echo "Installing chromium webdriver version ${LATEST}" &&\
-    wget https://chromedriver.storage.googleapis.com/${LATEST}/chromedriver_linux64.zip &&\
+RUN apt-get update && apt-get install -y wget curl unzip gnupg 
+
+# Download and install Chrome version 114.0.5735.90
+RUN wget https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_114.0.5735.90-1_amd64.deb &&\
+    dpkg -i google-chrome-stable_114.0.5735.90-1_amd64.deb || apt-get install -fy
+
+# TODO: You will also need to install the matching ChromeDriver version. 
+# However, finding the exact ChromeDriver version for older Chrome versions can be challenging. 
+# Make sure to replace the ChromeDriver download URL with the correct version.
+RUN wget https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip &&\
     unzip chromedriver_linux64.zip &&\
     mv chromedriver /usr/bin/chromedriver &&\
     chown root:root /usr/bin/chromedriver &&\
     chmod +x /usr/bin/chromedriver
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Run the web service on container startup. Here we use the gunicorn
