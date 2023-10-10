@@ -17,6 +17,7 @@ RUN dpkg -i google-chrome-stable_current_amd64.deb; apt-get -fy install
 
 # Get Chrome major version, then download compatible ChromeDriver
 RUN CHROME_MAJOR_VERSION=$(google-chrome-stable --version | awk '{ print $3 }' | cut -d '.' -f 1) && \
+    echo "Detected Chrome major version: $CHROME_MAJOR_VERSION" && \
     CHROMEDRIVER_VERSION=$(curl -sSL https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAJOR_VERSION) && \
     echo "Using ChromeDriver version: $CHROMEDRIVER_VERSION" && \
     wget -N https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip &&\
@@ -24,6 +25,7 @@ RUN CHROME_MAJOR_VERSION=$(google-chrome-stable --version | awk '{ print $3 }' |
     mv chromedriver /usr/bin/chromedriver &&\
     chown root:root /usr/bin/chromedriver &&\
     chmod +x /usr/bin/chromedriver
+
 
 RUN pip install --no-cache-dir -r requirements.txt
 
