@@ -13,10 +13,11 @@ COPY . ./
 # Install production dependencies.
 RUN apt-get update && apt-get install -y wget unzip curl
 
+
 # Download and install Chrome version 117.0.5938.149
 RUN wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/117.0.5938.149/linux64/chrome-linux64.zip &&\
     unzip chrome-linux64.zip &&\
-    mv chrome-linux64/google-chrome /usr/bin/google-chrome &&\
+    mv google-chrome /usr/bin/google-chrome &&\
     chmod +x /usr/bin/google-chrome
 
 # Download and install ChromeDriver version 117.0.5938.149
