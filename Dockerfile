@@ -13,12 +13,13 @@ COPY . ./
 # Install production dependencies.
 RUN apt-get update && apt-get install -y wget unzip curl
 
-# Assuming you've found the correct URL for Google Chrome version 114.0.5735.90
-RUN wget https://dl.google.com/linux/direct/google-chrome-stable_114.0.5735.90-1_amd64.deb 
-RUN dpkg -i google-chrome-stable_114.0.5735.90-1_amd64.deb; apt-get -fy install
+# Download and install Chrome version 117
+RUN wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/117.0.5938.149/linux64/chrome-linux64.zip && \
+    unzip chrome-linux64.zip -d /opt/google/ && \
+    ln -s /opt/google/chrome/chrome /usr/bin/google-chrome-stable
 
-# Install the ChromeDriver that's compatible with Chrome version 114
-RUN CHROMEDRIVER_VERSION=$(curl -sSL https://chromedriver.storage.googleapis.com/LATEST_RELEASE_114) && \
+# Install the ChromeDriver that's compatible with Chrome version 117
+RUN CHROMEDRIVER_VERSION=$(curl -sSL https://chromedriver.storage.googleapis.com/LATEST_RELEASE_117) && \
     wget -N https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip &&\
     unzip chromedriver_linux64.zip &&\
     mv chromedriver /usr/bin/chromedriver &&\
