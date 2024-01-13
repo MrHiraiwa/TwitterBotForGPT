@@ -8,7 +8,7 @@ from bs4.element import Comment
 import re
 import requests
 from urllib.parse import urljoin
-import openai
+from openai import OpenAI
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
