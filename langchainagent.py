@@ -1,7 +1,5 @@
 from langchain.agents import initialize_agent, Tool
 from langchain.agents import AgentType
-
-
 from langchain_community.chat_models import ChatOpenAI
 from langchain_community.utilities.google_search import GoogleSearchAPIWrapper
 from llama_index.readers import BeautifulSoupWebReader
