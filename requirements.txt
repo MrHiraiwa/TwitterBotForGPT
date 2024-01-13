@@ -5,6 +5,7 @@ tweepy
 flask
 google-api-python-client
 langchain
+langchain-community
 Flask-Executor
 pytz
 llama-index
