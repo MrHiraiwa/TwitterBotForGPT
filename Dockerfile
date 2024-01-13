@@ -22,7 +22,7 @@ RUN wget https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable
 # Make sure to replace the ChromeDriver download URL with the correct version.
 RUN wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/120.0.6099.71/linux64/chromedriver-linux64.zip &&\
     unzip chromedriver-linux64.zip &&\
-    mv chromedriver /usr/bin/chromedriver &&\
+    mv chromedriver-linux64/chromedriver /usr/bin/chromedriver &&\
     chown root:root /usr/bin/chromedriver &&\
     chmod +x /usr/bin/chromedriver
 
