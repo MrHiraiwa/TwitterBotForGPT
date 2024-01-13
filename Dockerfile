@@ -20,7 +20,7 @@ RUN wget https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable
 # TODO: You will also need to install the matching ChromeDriver version. 
 # However, finding the exact ChromeDriver version for older Chrome versions can be challenging. 
 # Make sure to replace the ChromeDriver download URL with the correct version.
-RUN wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/120.0.6099.71/linux64/chromedriver_linux64.zip &&\
+RUN wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/120.0.6099.71/linux64/chromedriver-linux64.zip &&\
     unzip chromedriver_linux64.zip &&\
     mv chromedriver /usr/bin/chromedriver &&\
     chown root:root /usr/bin/chromedriver &&\
