@@ -206,6 +206,8 @@ tools = [
 
 def langchain_agent(question,AI_MODEL, URL_LINKS_FILTER, READ_TEXT_COUNT, READ_LINKS_COUNT, PAINTING):
     global url_links_filter, read_text_count, read_links_count, painting_enable
+    global image_result
+    image_result = []
     url_links_filter = URL_LINKS_FILTER
     read_text_count = READ_TEXT_COUNT
     read_links_count = READ_LINKS_COUNT
