@@ -1,7 +1,9 @@
 from langchain.agents import initialize_agent, Tool
 from langchain.agents import AgentType
-from langchain.chat_models import ChatOpenAI
-from langchain.utilities.google_search import GoogleSearchAPIWrapper
+
+
+from langchain_community.chat_models import ChatOpenAI
+from langchain_community.utilities.google_search import GoogleSearchAPIWrapper
 from llama_index.readers import BeautifulSoupWebReader
 from bs4 import BeautifulSoup
 from bs4.element import Comment
@@ -165,14 +167,19 @@ def generate_image(prompt):
     if painting_enable == 'False':
         return 
     global image_result  # グローバル変数を使用することを宣言
-    response = openai.Image.create(
-        prompt=prompt,
-        n=1,
-        size="1024x1024",
-        response_format="url"
-    )
-    image_result = response['data'][0]['url']  # グローバル変数に値を代入
-    time.sleep(10)
+    client = OpenAI()
+    try:
+        response = client.images.generate(
+            model="dall-e-3",
+            prompt=prompt,
+            size="1024x1024",
+            quality="standard",
+            n=1,
+        )
+        image_result = response.data[0].url
+    except Exception as e:
+        return e    
+
     return 'generated the image.'
 
     
