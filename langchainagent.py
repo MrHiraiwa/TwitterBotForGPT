@@ -133,6 +133,7 @@ def scrape_links_and_text(url):
             iframes = driver.find_elements(By.TAG_NAME, 'iframe')
             for i in range(len(iframes)):
                 driver.switch_to.frame(iframes[i])
+                time.sleep(5)  # 5秒間の追加待機
                 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
                 iframe_html = driver.page_source
                 iframe_soup = BeautifulSoup(iframe_html, "html.parser")
