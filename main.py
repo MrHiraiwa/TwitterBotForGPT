@@ -234,8 +234,8 @@ def generate_tweet(retry_count, result):
     if extract_url:
         print(f"extract_url:{extract_url}")
         extracted_url = extract_url[0]['url']
-        add_url_to_firestore(extracted_url, user_id)
-    delete_expired_urls('user_id')
+        add_url_to_firestore(extracted_url)
+    delete_expired_urls()
     
     if 1 <= character_count <= 280: 
         try:
