@@ -201,9 +201,6 @@ def generate_tweet(retry_count, result):
     result, image_result = langchain_agent(instruction, AI_MODEL, URL_LINKS_FILTER, READ_TEXT_COUNT, READ_LINKS_COUNT, PAINTING)
     result = result.strip('"') 
     character_count = int(parse_tweet(result).weightedLength)
-    extract_url = extract_urls_with_indices(result).url
-    if extract_url:
-        print(f"extract_url:{extract_url}")
     
     if 1 <= character_count <= 280: 
         try:
