@@ -26,19 +26,7 @@ db = firestore.Client()
 def create_firestore_document_id_from_url(url):
     return urllib.parse.quote_plus(url)
 
-def add_url_to_firestore(url):
-    url = create_firestore_document_id_from_url(url)
-    doc_ref = db.collection('scraped_urls').document(url)
-    doc_ref.set({
-        'added_at': datetime.now()
-    })
 
-    # URLを一週間後に削除するタスクをスケジュール
-    delete_at = datetime.now() + timedelta(weeks=1)
-    doc_ref.update({
-        'delete_at': delete_at
-    })
-    
 def check_url_in_firestore(url):
     url = create_firestore_document_id_from_url(url)
     doc_ref = db.collection('scraped_urls').document(url)
@@ -87,7 +75,6 @@ def scraping(url):
 
             # Remove extra whitespace by splitting and joining
             result = ' '.join(result.split())
-            add_url_to_firestore(url)
             print(result[:read_text_count])
             return result[:read_text_count]  
 
@@ -133,6 +120,7 @@ def scrape_links_and_text(url):
             iframes = driver.find_elements(By.TAG_NAME, 'iframe')
             for i in range(len(iframes)):
                 driver.switch_to.frame(iframes[i])
+                time.sleep(5)  # 5秒間の追加待機
                 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
                 iframe_html = driver.page_source
                 iframe_soup = BeautifulSoup(iframe_html, "html.parser")

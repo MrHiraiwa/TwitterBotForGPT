@@ -9,7 +9,7 @@ import pytz
 from flask import Flask, request, render_template, session, redirect, url_for, jsonify
 from langchainagent import langchain_agent
 import unicodedata
-from twitter_text import parse_tweet
+from twitter_text import parse_tweet, extract_urls_with_indices
 import requests
 
 API_KEY = os.getenv('API_KEY')
@@ -27,6 +27,7 @@ REQUIRED_ENV_VARS = [
     "READ_TEXT_COUNT",
     "READ_LINKS_COUNT",
     "PAINTING",
+    "URL_FILTER"
 ]
 
 DEFAULT_ENV_VARS = {
@@ -55,6 +56,7 @@ https://news.google.com/search?q=ai%20when%3A3h&hl=ja&gl=JP&ceid=JP%3Aja
     'READ_TEXT_COUNT': '1000',
     'READ_LINKS_COUNT': '2000',
     'PAINTING': 'False',
+    'URL_FILTER': 'True'
 }
 auth = tweepy.OAuthHandler(API_KEY, API_KEY_SECRET)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
@@ -71,7 +73,7 @@ db = firestore.Client()
 
 def reload_settings():
     global order, nowDate, nowDateStr, jst, AI_MODEL, REGENERATE_ORDER, REGENERATE_COUNT, URL_LINKS_FILTER
-    global READ_TEXT_COUNT,READ_LINKS_COUNT, PAINTING
+    global READ_TEXT_COUNT,READ_LINKS_COUNT, PAINTING, URL_FILTER
     jst = pytz.timezone('Asia/Tokyo')
     nowDate = datetime.now(jst)
     nowDateStr = nowDate.strftime('%Y年%m月%d日')
@@ -83,6 +85,7 @@ def reload_settings():
     READ_TEXT_COUNT = int(get_setting('READ_TEXT_COUNT') or 1000)
     READ_LINKS_COUNT = int(get_setting('READ_LINKS_COUNT') or 2000)
     PAINTING = get_setting('PAINTING')
+    URL_FILTER = get_setting('URL_FILTER')
     order = random.choice(ORDER)  # ORDER配列からランダムに選択
     order = order.strip()  # 先頭と末尾の改行コードを取り除く
     if '{nowDateStr}' in order:
@@ -175,6 +178,34 @@ def settings():
     required_env_vars=REQUIRED_ENV_VARS
     )
 
+def delete_expired_urls():
+    urls_ref = db.collection('scraped_urls')
+
+    # 現在の日時を取得
+    now = datetime.now()
+
+    # 'delete_at'が現在時刻よりも前のドキュメントを検索
+    query = urls_ref.where('delete_at', '<=', now)
+    expired_urls = query.stream()
+
+    # 各ドキュメントを削除
+    for url_doc in expired_urls:
+        print(f"Deleting URL: {url_doc.id}")
+        url_doc.reference.delete()
+
+def add_url_to_firestore(url):
+    url = create_firestore_document_id_from_url(url)
+    doc_ref = db.collection('scraped_urls').document(url)
+    doc_ref.set({
+        'added_at': datetime.now()
+    })
+
+    # URLを一週間後に削除するタスクをスケジュール
+    delete_at = datetime.now() + timedelta(weeks=1)
+    doc_ref.update({
+        'delete_at': delete_at
+    })
+
 @app.route('/tweet')
 def create_tweet():
     reload_settings()
@@ -201,6 +232,15 @@ def generate_tweet(retry_count, result):
     result, image_result = langchain_agent(instruction, AI_MODEL, URL_LINKS_FILTER, READ_TEXT_COUNT, READ_LINKS_COUNT, PAINTING)
     result = result.strip('"') 
     character_count = int(parse_tweet(result).weightedLength)
+    
+    extract_url = extract_urls_with_indices(result)
+
+    if URL_FILTER == True:
+        if extract_url:
+            print(f"extract_url:{extract_url}")
+            extracted_url = extract_url[0]['url']
+            add_url_to_firestore(extracted_url)
+        delete_expired_urls()
     
     if 1 <= character_count <= 280: 
         try:
