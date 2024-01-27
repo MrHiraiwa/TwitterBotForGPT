@@ -11,6 +11,8 @@ from langchainagent import langchain_agent
 import unicodedata
 from twitter_text import parse_tweet, extract_urls_with_indices
 import requests
+from urllib.parse import urljoin
+import urllib.parse
 
 API_KEY = os.getenv('API_KEY')
 API_KEY_SECRET = os.getenv('API_KEY_SECRET')
