@@ -27,7 +27,7 @@ REQUIRED_ENV_VARS = [
     "READ_TEXT_COUNT",
     "READ_LINKS_COUNT",
     "PAINTING",
-    "URL_Filter"
+    "URL_FILTER"
 ]
 
 DEFAULT_ENV_VARS = {
@@ -56,7 +56,7 @@ https://news.google.com/search?q=ai%20when%3A3h&hl=ja&gl=JP&ceid=JP%3Aja
     'READ_TEXT_COUNT': '1000',
     'READ_LINKS_COUNT': '2000',
     'PAINTING': 'False',
-    'URL_Filter': 'True'
+    'URL_FILTER': 'True'
 }
 auth = tweepy.OAuthHandler(API_KEY, API_KEY_SECRET)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
@@ -73,7 +73,7 @@ db = firestore.Client()
 
 def reload_settings():
     global order, nowDate, nowDateStr, jst, AI_MODEL, REGENERATE_ORDER, REGENERATE_COUNT, URL_LINKS_FILTER
-    global READ_TEXT_COUNT,READ_LINKS_COUNT, PAINTING, URL_Filter
+    global READ_TEXT_COUNT,READ_LINKS_COUNT, PAINTING, URL_FILTER
     jst = pytz.timezone('Asia/Tokyo')
     nowDate = datetime.now(jst)
     nowDateStr = nowDate.strftime('%Y年%m月%d日')
@@ -85,7 +85,7 @@ def reload_settings():
     READ_TEXT_COUNT = int(get_setting('READ_TEXT_COUNT') or 1000)
     READ_LINKS_COUNT = int(get_setting('READ_LINKS_COUNT') or 2000)
     PAINTING = get_setting('PAINTING')
-    URL_Filter = get_setting('URL_Filter')
+    URL_FILTER = get_setting('URL_FILTER')
     order = random.choice(ORDER)  # ORDER配列からランダムに選択
     order = order.strip()  # 先頭と末尾の改行コードを取り除く
     if '{nowDateStr}' in order:
@@ -235,7 +235,7 @@ def generate_tweet(retry_count, result):
     
     extract_url = extract_urls_with_indices(result)
 
-    if URL_Filter = True:
+    if URL_FILTER = True:
         if extract_url:
             print(f"extract_url:{extract_url}")
             extracted_url = extract_url[0]['url']
