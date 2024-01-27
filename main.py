@@ -235,7 +235,7 @@ def generate_tweet(retry_count, result):
     
     extract_url = extract_urls_with_indices(result)
 
-    if URL_FILTER = True:
+    if URL_FILTER == True:
         if extract_url:
             print(f"extract_url:{extract_url}")
             extracted_url = extract_url[0]['url']
