@@ -26,19 +26,7 @@ db = firestore.Client()
 def create_firestore_document_id_from_url(url):
     return urllib.parse.quote_plus(url)
 
-def add_url_to_firestore(url):
-    url = create_firestore_document_id_from_url(url)
-    doc_ref = db.collection('scraped_urls').document(url)
-    doc_ref.set({
-        'added_at': datetime.now()
-    })
 
-    # URLを一週間後に削除するタスクをスケジュール
-    delete_at = datetime.now() + timedelta(weeks=1)
-    doc_ref.update({
-        'delete_at': delete_at
-    })
-    
 def check_url_in_firestore(url):
     url = create_firestore_document_id_from_url(url)
     doc_ref = db.collection('scraped_urls').document(url)
@@ -87,7 +75,6 @@ def scraping(url):
 
             # Remove extra whitespace by splitting and joining
             result = ' '.join(result.split())
-            add_url_to_firestore(url)
             print(result[:read_text_count])
             return result[:read_text_count]  
 
