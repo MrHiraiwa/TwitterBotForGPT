@@ -190,8 +190,18 @@ def delete_expired_urls():
         print(f"Deleting URL: {url_doc.id}")
         url_doc.reference.delete()
 
-# 期限切れURLを削除
-delete_expired_urls()
+def add_url_to_firestore(url):
+    url = create_firestore_document_id_from_url(url)
+    doc_ref = db.collection('scraped_urls').document(url)
+    doc_ref.set({
+        'added_at': datetime.now()
+    })
+
+    # URLを一週間後に削除するタスクをスケジュール
+    delete_at = datetime.now() + timedelta(weeks=1)
+    doc_ref.update({
+        'delete_at': delete_at
+    })
 
 @app.route('/tweet')
 def create_tweet():
@@ -219,8 +229,13 @@ def generate_tweet(retry_count, result):
     result, image_result = langchain_agent(instruction, AI_MODEL, URL_LINKS_FILTER, READ_TEXT_COUNT, READ_LINKS_COUNT, PAINTING)
     result = result.strip('"') 
     character_count = int(parse_tweet(result).weightedLength)
-    # 期限切れURLを削除
-    delete_expired_urls()
+    
+    extract_url = extract_urls_with_indices(bot_reply)
+    if extract_url:
+        print(f"extract_url:{extract_url}")
+        extracted_url = extract_url[0]['url']
+        add_url_to_firestore(extracted_url, user_id)
+    delete_expired_urls('user_id')
     
     if 1 <= character_count <= 280: 
         try:
