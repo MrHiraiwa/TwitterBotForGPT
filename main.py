@@ -193,6 +193,9 @@ def delete_expired_urls():
         print(f"Deleting URL: {url_doc.id}")
         url_doc.reference.delete()
 
+def create_firestore_document_id_from_url(url):
+    return urllib.parse.quote_plus(url)
+
 def add_url_to_firestore(url):
     url = create_firestore_document_id_from_url(url)
     doc_ref = db.collection('scraped_urls').document(url)
