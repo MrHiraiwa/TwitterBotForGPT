@@ -179,7 +179,7 @@ def delete_expired_urls():
     urls_ref = db.collection('scraped_urls')
 
     # 現在の日時を取得
-    now = datetime.datetime.now()
+    now = datetime.now()
 
     # 'delete_at'が現在時刻よりも前のドキュメントを検索
     query = urls_ref.where('delete_at', '<=', now)
