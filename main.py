@@ -175,6 +175,24 @@ def settings():
     required_env_vars=REQUIRED_ENV_VARS
     )
 
+def delete_expired_urls():
+    urls_ref = db.collection('scraped_urls')
+
+    # 現在の日時を取得
+    now = datetime.datetime.now()
+
+    # 'delete_at'が現在時刻よりも前のドキュメントを検索
+    query = urls_ref.where('delete_at', '<=', now)
+    expired_urls = query.stream()
+
+    # 各ドキュメントを削除
+    for url_doc in expired_urls:
+        print(f"Deleting URL: {url_doc.id}")
+        url_doc.reference.delete()
+
+# 期限切れURLを削除
+delete_expired_urls()
+
 @app.route('/tweet')
 def create_tweet():
     reload_settings()
@@ -201,6 +219,8 @@ def generate_tweet(retry_count, result):
     result, image_result = langchain_agent(instruction, AI_MODEL, URL_LINKS_FILTER, READ_TEXT_COUNT, READ_LINKS_COUNT, PAINTING)
     result = result.strip('"') 
     character_count = int(parse_tweet(result).weightedLength)
+    # 期限切れURLを削除
+    delete_expired_urls()
     
     if 1 <= character_count <= 280: 
         try:
