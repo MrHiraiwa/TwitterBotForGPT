@@ -24,7 +24,7 @@ https://note.com/modern_echium586/n/nebe1d7ae01f2
 - API_KEY_SECRET: TwitterのAPIキーシークレットを入力してください。
 - ACCESS_TOKEN: Twitterのアクセストークンを入力してください。
 - ACCESS_TOKEN_SECRET: Twitterのアクセストークンシークレットを入力してください。
-- OPENAI_APIKEY: OpenAIのAPIキーを入力してください。
+- OPENAI_API_KEY: OpenAIのAPIキーを入力してください。
 - GOOGLE_API_KEY: Google Cloud Pratformに発行したAPIキーを入力してください。
 -GOOGLE_CSE_ID: Google Cloud PratformのCustom Search設定時に発行した検索エンジンIDを設定してください。
 - ADMIN_PASSWORD: WEBの管理画面のログインに使用する管理者パスワードです。このシステムはインターネットから誰でも触れるので、必ず複雑なパスワードを設定してください。
